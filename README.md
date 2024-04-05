@@ -1,2 +1,24 @@
 # r_communityservice
- 
+
+## Description:
+This is a script designed to be a consistent tool that you can trust to efficiently assign community service tasks within your FiveM server. The script was born out of the necessity to address issues encountered with similar scripts, and Bernie said do it.
+QBCore Support is untested.
+
+## Features:
+- 🚀 Performance-oriented design.
+- 🔄 Reliable and consistent functionality.
+- ⚙️ Utilizes ox_lib for seamless integration.
+- 📝 Input and confirmation screens for setting community service tasks.
+- 📦 Items stored in a stash for players until they complete the required tasks.
+
+## Dependencies:
+- [ox_lib](https://github.com/overextended/ox_lib/releases)
+- [es_extended](https://github.com/esx-framework) or [qb-core](https://github.com/qbcore-framework)
+
+## Installation
+1. Download the script files
+2. Place them in your FiveM server's resources folder
+3. Ensure all dependencies are installed
+4. Add `add_ace group.admin communityservice allow` to your server.cfg
+5. Add `ensure r-communityservice` to your server.cfg
+6. Restart Server and Enjoy!
