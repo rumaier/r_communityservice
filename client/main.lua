@@ -30,8 +30,7 @@ local function startPunishment(tasks)
             local pCoords = GetEntityCoords(PlayerPedId())
             local mCoords = hole
             local distance = #(mCoords - pCoords)
-            DrawMarker(0, hole.x, hole.y, hole.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.75, 0.75, 0.75, 255, 0, 0, 80, true,
-                true, 2, false, nil, nil, false)
+            DrawMarker(0, hole.x, hole.y, hole.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.75, 0.75, 0.75, 255, 0, 0, 80, true, true, 2, false, nil, nil, false)
             if distance <= 1.0 then
                 lib.showTextUI('[E] - Start Digging')
                 if IsControlJustReleased(0, 38) then
@@ -41,8 +40,7 @@ local function startPunishment(tasks)
                     lib.requestModel(prop)
                     lib.hideTextUI()
                     local shovel = CreateObject(prop, hole.x, hole.y, hole.z, true, false, false)
-                    AttachEntityToEntity(shovel, PlayerPedId(), GetPedBoneIndex(PlayerPedId(), 28422), 0.0, 0.0, 0.24, 0,
-                        0, 0.0, true, true, false, true, 1, true)
+                    AttachEntityToEntity(shovel, PlayerPedId(), GetPedBoneIndex(PlayerPedId(), 28422), 0.0, 0.0, 0.24, 0, 0, 0.0, true, true, false, true, 1, true)
                     TaskPlayAnim(PlayerPedId(), animDict, 'a_burial', 8.0, 8.0, -1, 1, 1.0, false, false, false)
                     ClProgress(10000)
                     DeleteEntity(shovel)

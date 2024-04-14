@@ -1,12 +1,20 @@
-if Cfg.Inventory == 'none' then return end
-print('Current Inventory: '.. Cfg.Inventory ..'')
+if not Cfg.Inventory == 'false' then return end
+print('Current Inventory: ' .. Cfg.Inventory .. '')
 
 RegisterNetEvent('r_communityservice:confiscateInven')
 AddEventHandler('r_communityservice:confiscateInven', function()
-    exports.ox_inventory:ConfiscateInventory(source)
+    if Cfg.Inventory == 'ox_inventory' then
+        exports.ox_inventory:ConfiscateInventory(source)
+    elseif Cfg.Inventory == 'custom' then
+        -- Insert Your Inventories Exports Here
+    end
 end)
 
 RegisterNetEvent('r_communityservice:returnInven')
 AddEventHandler('r_communityservice:returnInven', function()
-    exports.ox_inventory:ReturnInventory(source)
+    if Cfg.Inventory == 'ox_inventory' then
+        exports.ox_inventory:ReturnInventory(source)
+    elseif Cfg.Inventory == 'custom' then
+        -- Insert Your Inventories Exports Here
+    end
 end)

@@ -10,6 +10,6 @@ RegisterServerEvent('r_communityservice:passData', function(target, time)
     TriggerClientEvent('r_communityservice:getData', target, time)
 end)
 
-print('ServerSide Is Loaded [R-Community Service Keeping Criminals Punished Since 2024]')
+print('ServerSide Is Loaded [r_communityservice, Keeping Criminals Punished Since 2024]')
 print('Why was the parrot in prison?')
 print('Because it was a jail-bird.')

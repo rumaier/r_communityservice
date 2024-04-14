@@ -6,7 +6,7 @@
 Cfg = {
     -- Server Options
     Notification = 'ox', -- Determines the notification system. ('default', 'ox', 'custom': can be customized in bridge/"FRAMEWORK")
-    Inventory = 'ox',    -- Toggles Inventory system for item confiscation/return. ('false', 'ox', 'custom': can be customized in bridge/inventory)
+    Inventory = 'ox_inventory',    -- Toggles Inventory system for item confiscation/return. ('false', 'ox_inventory', 'custom': can be customized in bridge/inventory)
     
     -- Permissions Settings
     Command = 'communityservice',
