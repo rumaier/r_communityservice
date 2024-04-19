@@ -1,6 +1,7 @@
-function ClProgress(duration)
+function ClProgress(label, duration)
     lib.progressCircle({
         duration = duration,
+        label = label,
         position = 'bottom',
         useWhileDead = false,
         canCancel = false,

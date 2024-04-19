@@ -1,4 +1,4 @@
-lib.callback.register('getAcePerm', function()
+lib.callback.register('r_communityservice:getAcePerm', function()
     if IsPlayerAceAllowed(source, 'communityservice') then
         return true
     else

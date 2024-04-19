@@ -1,4 +1,4 @@
-if not Cfg.Inventory == 'false' then return end
+if not Cfg.Inventory then return end
 print('Current Inventory: ' .. Cfg.Inventory .. '')
 
 RegisterNetEvent('r_communityservice:confiscateInven')

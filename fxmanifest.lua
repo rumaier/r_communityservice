@@ -6,7 +6,7 @@ lua54 'yes'
 name 'r_'
 description 'A Simple '
 author 'r_scripts'
-version '0.9.6'
+version '0.9.9'
 
 shared_scripts {
     '@es_extended/imports.lua',
@@ -15,13 +15,13 @@ shared_scripts {
 }
 
 client_scripts {
-    'client/*.lua',
     'bridge/**/client.lua',
+    'client/*.lua',
 }
 
 server_scripts {
-    'server/*.lua',
     'bridge/**/server.lua',
+    'server/*.lua',
 }
 
 dependencies {

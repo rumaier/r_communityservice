@@ -22,3 +22,6 @@ QBCore Support is untested.
 4. Add `add_ace group.admin communityservice allow` to your server.cfg
 5. Add `ensure r-communityservice` to your server.cfg
 6. Restart Server and Enjoy!
+
+## Support:
+- [Discord](https://discord.gg/8TzrRRheV5)

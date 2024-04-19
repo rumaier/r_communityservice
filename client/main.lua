@@ -1,10 +1,14 @@
 local onPunishment = false
 local tasksLeft = 0
-local hole = nil
+local hole = {current = nil, last = nil}
 
 local function getHole()
-    if hole == nil then
-        hole = Cfg.Holes[math.random(1, #Cfg.Holes)]
+    while hole.current == nil do
+        local roll = Cfg.Holes[math.random(1, #Cfg.Holes)]
+        if roll ~= hole.last then
+            hole.current = roll
+            break
+        end       
     end
 end
 
@@ -20,17 +24,17 @@ local function startPunishment(tasks)
             points = Cfg.Zone,
             thickness = 100,
             onExit = function()
-                SetEntityCoords(PlayerPedId(), Cfg.Center, true, false, false, false)
+                SetEntityCoords(PlayerPedId(), hole.current, true, false, false, false)
                 ClNotify('You may leave when you complete your tasks.', 'error')
             end,
             debug = Cfg.ZoneDebug
         })
         getHole()
-        while hole ~= nil do
+        while hole.current ~= nil do
             local pCoords = GetEntityCoords(PlayerPedId())
-            local mCoords = hole
+            local mCoords = hole.current
             local distance = #(mCoords - pCoords)
-            DrawMarker(0, hole.x, hole.y, hole.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.75, 0.75, 0.75, 255, 0, 0, 80, true, true, 2, false, nil, nil, false)
+            DrawMarker(0, hole.current.x, hole.current.y, hole.current.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.75, 0.75, 0.75, 255, 0, 0, 80, true, true, 2, false, nil, nil, false)
             if distance <= 1.0 then
                 lib.showTextUI('[E] - Start Digging')
                 if IsControlJustReleased(0, 38) then
@@ -39,14 +43,15 @@ local function startPunishment(tasks)
                     lib.requestAnimDict(animDict)
                     lib.requestModel(prop)
                     lib.hideTextUI()
-                    local shovel = CreateObject(prop, hole.x, hole.y, hole.z, true, false, false)
+                    local shovel = CreateObject(prop, hole.current.x, hole.current.y, hole.current.z, true, false, false)
                     AttachEntityToEntity(shovel, PlayerPedId(), GetPedBoneIndex(PlayerPedId(), 28422), 0.0, 0.0, 0.24, 0, 0, 0.0, true, true, false, true, 1, true)
                     TaskPlayAnim(PlayerPedId(), animDict, 'a_burial', 8.0, 8.0, -1, 1, 1.0, false, false, false)
-                    ClProgress(10000)
+                    ClProgress('Digging Hole...', (Cfg.DigTime * 1000))
                     DeleteEntity(shovel)
                     ClearPedTasks(PlayerPedId())
                     tasksLeft = tasksLeft - 1
-                    hole = nil
+                    hole.last = hole.current
+                    hole.current = nil
                 end
             end
             if distance >= 1.0 then
@@ -74,7 +79,7 @@ RegisterNetEvent('r_communityservice:getData', function(time)
 end)
 
 RegisterCommand('communityservice', function()
-    local admin = lib.callback.await('getAcePerm', false)
+    local admin = lib.callback.await('r_communityservice:getAcePerm', false)
     if not admin then return end
     local input = lib.inputDialog('Community Service', {
         { type = 'input',  label = 'Player ID:', required = true },                              -- input[1]
