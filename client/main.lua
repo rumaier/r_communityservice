@@ -1,6 +1,6 @@
 local onPunishment = false
 local tasksLeft = 0
-local hole = {current = nil, last = nil}
+local hole = { current = nil, last = nil }
 
 local function getHole()
     while hole.current == nil do
@@ -8,7 +8,7 @@ local function getHole()
         if roll ~= hole.last then
             hole.current = roll
             break
-        end       
+        end
     end
 end
 
@@ -29,6 +29,7 @@ local function startPunishment(tasks)
             end,
             debug = Cfg.ZoneDebug
         })
+        ClNotify('You have been assigned '.. tasksLeft.. ' tasks!', 'info')
         getHole()
         while hole.current ~= nil do
             local pCoords = GetEntityCoords(PlayerPedId())
@@ -50,6 +51,9 @@ local function startPunishment(tasks)
                     DeleteEntity(shovel)
                     ClearPedTasks(PlayerPedId())
                     tasksLeft = tasksLeft - 1
+                    if tasksLeft > 0 then
+                        ClNotify(''.. tasksLeft.. ' more to go!', 'info')
+                    end
                     hole.last = hole.current
                     hole.current = nil
                 end
@@ -61,9 +65,11 @@ local function startPunishment(tasks)
         end
         if tasksLeft == 0 then
             digZone:remove()
-            SetEntityCoords(PlayerPedId(), initCoords, true, false, false, false)
+            SetEntityCoords(PlayerPedId(), initCoords.x, initCoords.y, initCoords.z + 2.0, true, false, false, false)
             TriggerServerEvent('r_communityservice:returnInven')
             ClNotify('Tasks Fulfilled, you\'re free to go.', 'success')
+            hole = { current = nil, last = nil }
+            tasksLeft = 0
             onPunishment = false
         end
         Wait(0)
@@ -80,21 +86,25 @@ end)
 
 RegisterCommand('communityservice', function()
     local admin = lib.callback.await('r_communityservice:getAcePerm', false)
-    if not admin then return end
-    local input = lib.inputDialog('Community Service', {
-        { type = 'input',  label = 'Player ID:', required = true },                              -- input[1]
-        { type = 'number', label = 'Tasks:',     required = true, min = 0, max = Cfg.MaxTasks }, -- input[2]
-    })
-    if not input then return end
-    local alert = lib.alertDialog({
-        header = 'Community Service',
-        content = 'Give ID #' .. input[1] .. ' ' .. input[2] .. ' tasks?',
-        centered = true,
-        cancel = true
-    })
-    if alert == 'confirm' then
-        TriggerServerEvent("r_communityservice:passData", input[1], input[2])
-        ClNotify('Player ID #' .. input[1] .. ' was given ' .. input[2] .. ' tasks.', 'info')
+    local cop = ClJobCheck()
+    if admin or cop then
+        local input = lib.inputDialog('Community Service', {
+            { type = 'input',  label = 'Player ID:', required = true },                          -- input[1]
+            { type = 'number', label = 'Tasks:',     required = true, min = 0, max = Cfg.MaxTasks }, -- input[2]
+        })
+        if not input then return end
+        local alert = lib.alertDialog({
+            header = 'Community Service',
+            content = 'Give ID #' .. input[1] .. ' ' .. input[2] .. ' tasks?',
+            centered = true,
+            cancel = true
+        })
+        if alert == 'confirm' then
+            TriggerServerEvent("r_communityservice:passData", input[1], input[2])
+            ClNotify('Player ID #' .. input[1] .. ' was given ' .. input[2] .. ' tasks.', 'info')
+        else
+            return
+        end
     else
         return
     end

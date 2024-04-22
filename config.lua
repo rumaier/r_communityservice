@@ -8,6 +8,10 @@ Cfg = {
     Notification = 'ox',          -- Determines the notification system. ('default', 'ox', 'custom': can be customized in bridge/"FRAMEWORK")
     Inventory = false,            -- Toggles Inventory system for item confiscation/return. ('ox_inventory', 'custom': can be customized in bridge/inventory, false to disable.)
     Command = 'communityservice', -- Determines the command admins use to access the community service input dialog.
+    PoliceJobs = {                -- Add police jobs here if you want police to assign community service. Comment 'police' out to disable.
+        'police',
+        -- 'sheriff',
+    },
 
     -- Community Service Options
     MaxTasks = 100, -- The maximum amount of tasks an admin can assign.

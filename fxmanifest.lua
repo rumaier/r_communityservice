@@ -6,7 +6,7 @@ lua54 'yes'
 name 'r_'
 description 'A Simple '
 author 'r_scripts'
-version '0.9.9'
+version '1.0.0'
 
 shared_scripts {
     '@es_extended/imports.lua',

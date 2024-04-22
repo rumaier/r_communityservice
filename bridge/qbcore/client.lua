@@ -11,3 +11,15 @@ function ClNotify(msg, type)
         -- Insert your notification system here
     end
 end
+
+function ClJobCheck()
+    local playerData = QBCore.Functions.GetPlayerData()
+    if not playerData then return false end
+
+    for _, policeJob in ipairs(Cfg.PoliceJobs) do
+        if playerData.job.name == policeJob then
+            return true
+        end
+    end
+    return false
+end

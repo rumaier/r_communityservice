@@ -23,5 +23,8 @@ QBCore Support is untested.
 5. Add `ensure r-communityservice` to your server.cfg
 6. Restart Server and Enjoy!
 
+## Documentation:
+- [Gitbook](https://r-scripts-1.gitbook.io/r_scripts-docs./r_communityservice)
+
 ## Support:
 - [Discord](https://discord.gg/8TzrRRheV5)

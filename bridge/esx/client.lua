@@ -11,3 +11,13 @@ function ClNotify(msg, type)
         -- Insert your notification system here
     end
 end
+
+function ClJobCheck()
+    local job = ESX.GetPlayerData().job
+    for _, policeJob in ipairs(Cfg.PoliceJobs) do
+        if job.name == policeJob then
+            return true
+        end
+    end
+    return false
+end
