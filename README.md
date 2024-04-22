@@ -1,7 +1,7 @@
 # r_communityservice
 
 ## Description:
-This is a script designed to be a consistent tool that you can trust to efficiently assign community service tasks within your FiveM server. The script was born out of the necessity to address issues encountered with similar scripts, and Bernie said do it.
+This is a script designed to be a consistent tool that you can trust to efficiently assign community service tasks within your FiveM server. The script was born out of the necessity to address issues encountered with similar scripts, and Bernie said do it. Tasks can be assigned by admins using ACE permissions and/or Police through a config table.
 QBCore Support is untested.
 
 ## Features:
