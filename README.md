@@ -24,7 +24,7 @@ QBCore Support is untested.
 6. Restart Server and Enjoy!
 
 ## Documentation:
-- [Gitbook](https://r-scripts-1.gitbook.io/r_scripts-docs./r_communityservice)
+- [Gitbook](https://r-scripts-1.gitbook.io/r_scripts-docs./free-resources/r_communityservice)
 
 ## Support:
 - [Discord](https://discord.gg/8TzrRRheV5)
