@@ -1,5 +1,7 @@
 local onPunishment = false
 local tasksLeft = 0
+local initCoords = nil
+local digZone = nil
 local hole = { current = nil, last = nil }
 
 local function getHole()
@@ -12,15 +14,30 @@ local function getHole()
     end
 end
 
+local function endPunishment()
+    if not onPunishment then return end
+    digZone:remove()
+    SetEntityCoords(PlayerPedId(), initCoords.x, initCoords.y, initCoords.z + 2.0, true, false, false, false)
+    TriggerServerEvent('r_communityservice:returnInven')
+    ClNotify('Tasks Fulfilled, you\'re free to go.', 'success')
+    hole = { current = nil, last = nil }
+    tasksLeft = 0
+    onPunishment = false
+end
+
 local function startPunishment(tasks)
-    local initCoords = GetEntityCoords(PlayerPedId())
+    initCoords = GetEntityCoords(PlayerPedId())
     onPunishment = true
     tasksLeft = tasks
+    DoScreenFadeOut(750)
+    Wait(800)
     SetEntityCoords(PlayerPedId(), Cfg.Center, true, false, false, false)
+    Wait(150)
+    DoScreenFadeIn(375)
     TriggerServerEvent('r_communityservice:confiscateInven')
     ClNotify('You have ' .. tasks .. ' holes left to dig!', 'info')
     while onPunishment do
-        local digZone = lib.zones.poly({
+        digZone = lib.zones.poly({
             points = Cfg.Zone,
             thickness = 100,
             onExit = function()
@@ -64,13 +81,7 @@ local function startPunishment(tasks)
             Wait(0)
         end
         if tasksLeft == 0 then
-            digZone:remove()
-            SetEntityCoords(PlayerPedId(), initCoords.x, initCoords.y, initCoords.z + 2.0, true, false, false, false)
-            TriggerServerEvent('r_communityservice:returnInven')
-            ClNotify('Tasks Fulfilled, you\'re free to go.', 'success')
-            hole = { current = nil, last = nil }
-            tasksLeft = 0
-            onPunishment = false
+            endPunishment()
         end
         Wait(0)
     end
@@ -82,6 +93,11 @@ RegisterNetEvent('r_communityservice:getData', function(time)
     else
         return
     end
+end)
+
+RegisterNetEvent('r_communityservice:endPunishment', function()
+    if not onPunishment then return end
+    endPunishment()
 end)
 
 RegisterCommand('communityservice', function()
@@ -108,4 +124,15 @@ RegisterCommand('communityservice', function()
     else
         return
     end
+end, false)
+
+RegisterCommand('endcommunityservice', function()
+    local admin = lib.callback.await('r_communityservice:getAcePerm', false)
+    print('admin:', admin)
+    if not admin then return end
+    local input = lib.inputDialog('End Community Service', {
+        { type = 'input',  label = 'Player ID:', required = true },
+    })
+    if not input then return end
+    TriggerServerEvent('r_communityservice:endPunishment', input[1])
 end, false)
