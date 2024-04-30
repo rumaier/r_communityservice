@@ -13,3 +13,9 @@ function SvNotify(msg, type)
         -- Insert your notification system here
     end
 end
+
+function GetPlayer(player)
+    local xPlayer = ESX.GetPlayerFromId(player)
+    local id = xPlayer.getIdentifier()
+    return id
+end

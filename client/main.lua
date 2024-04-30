@@ -96,8 +96,6 @@ RegisterNetEvent('r_communityservice:getData', function(time)
 end)
 
 RegisterNetEvent('r_communityservice:endPunishment', function()
-    local admin = lib.callback.await('r_communityservice:getAcePerm', false)
-    if not admin then return end
     if not onPunishment then return end
     endPunishment()
 end)
