@@ -14,8 +14,8 @@ end
 
 function ClJobCheck()
     local job = ESX.GetPlayerData().job
-    for _, policeJob in ipairs(Cfg.PoliceJobs) do
-        if job.name == policeJob then
+    for i = 1, #Cfg.PoliceJobs do
+        if job.name == Cfg.PoliceJobs[i] then
             return true
         end
     end

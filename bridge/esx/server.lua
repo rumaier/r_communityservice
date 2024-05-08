@@ -14,7 +14,7 @@ function SvNotify(msg, type)
     end
 end
 
-function GetPlayer(player)
+function GetPlayerIdentifier(player)
     local xPlayer = ESX.GetPlayerFromId(player)
     local id = xPlayer.getIdentifier()
     return id

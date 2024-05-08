@@ -17,7 +17,7 @@ end
 local function endPunishment()
     if not onPunishment then return end
     digZone:remove()
-    SetEntityCoords(PlayerPedId(), initCoords.x, initCoords.y, initCoords.z + 2.0, true, false, false, false)
+    SetEntityCoords(PlayerPedId(), initCoords + 2.0, true, false, false, false)
     TriggerServerEvent('r_communityservice:returnInven')
     ClNotify('Tasks Fulfilled, you\'re free to go.', 'success')
     hole = { current = nil, last = nil }
@@ -116,7 +116,7 @@ RegisterCommand('communityservice', function()
             cancel = true
         })
         if alert == 'confirm' then
-            TriggerServerEvent("r_communityservice:passData", input[1], input[2])
+            TriggerServerEvent("r_communityservice:passData", input[1], input[2], cop)
             ClNotify('Player ID #' .. input[1] .. ' was given ' .. input[2] .. ' tasks.', 'info')
         else
             return

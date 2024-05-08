@@ -16,8 +16,8 @@ function ClJobCheck()
     local playerData = QBCore.Functions.GetPlayerData()
     if not playerData then return false end
 
-    for _, policeJob in ipairs(Cfg.PoliceJobs) do
-        if playerData.job.name == policeJob then
+    for i = 1, #Cfg.PoliceJobs do
+        if playerData.job.name == Cfg.PoliceJobs[i] then
             return true
         end
     end
