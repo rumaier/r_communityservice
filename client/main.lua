@@ -17,7 +17,7 @@ end
 local function endPunishment()
     if not onPunishment then return end
     digZone:remove()
-    SetEntityCoords(PlayerPedId(), initCoords + 2.0, true, false, false, false)
+    SetEntityCoords(PlayerPedId(), initCoords.x, initCoords.y, initCoords.z + 1.0, true, false, false, false)
     TriggerServerEvent('r_communityservice:returnInven')
     ClNotify('Tasks Fulfilled, you\'re free to go.', 'success')
     hole = { current = nil, last = nil }
@@ -27,6 +27,7 @@ end
 
 local function startPunishment(tasks)
     initCoords = GetEntityCoords(PlayerPedId())
+    print(initCoords)
     onPunishment = true
     tasksLeft = tasks
     DoScreenFadeOut(750)
@@ -35,7 +36,7 @@ local function startPunishment(tasks)
     Wait(150)
     DoScreenFadeIn(375)
     TriggerServerEvent('r_communityservice:confiscateInven')
-    ClNotify('You have ' .. tasks .. ' holes left to dig!', 'info')
+    ClNotify('You have been assigned '.. tasksLeft.. ' tasks!', 'info')
     while onPunishment do
         digZone = lib.zones.poly({
             points = Cfg.Zone,
@@ -46,7 +47,6 @@ local function startPunishment(tasks)
             end,
             debug = Cfg.ZoneDebug
         })
-        ClNotify('You have been assigned '.. tasksLeft.. ' tasks!', 'info')
         getHole()
         while hole.current ~= nil do
             local pCoords = GetEntityCoords(PlayerPedId())
@@ -88,11 +88,7 @@ local function startPunishment(tasks)
 end
 
 RegisterNetEvent('r_communityservice:getData', function(time)
-    if not onPunishment then
-        startPunishment(time)
-    else
-        return
-    end
+    if not onPunishment then return startPunishment(time) end
 end)
 
 RegisterNetEvent('r_communityservice:endPunishment', function()
@@ -101,33 +97,31 @@ RegisterNetEvent('r_communityservice:endPunishment', function()
 end)
 
 RegisterCommand('communityservice', function()
-    local admin = lib.callback.await('r_communityservice:getAcePerm', false)
-    local cop = ClJobCheck()
-    if admin or cop then
-        local input = lib.inputDialog('Community Service', {
-            { type = 'input',  label = 'Player ID:', required = true },                          -- input[1]
-            { type = 'number', label = 'Tasks:',     required = true, min = 0, max = Cfg.MaxTasks }, -- input[2]
-        })
-        if not input then return end
-        local alert = lib.alertDialog({
-            header = 'Community Service',
-            content = 'Give ID #' .. input[1] .. ' ' .. input[2] .. ' tasks?',
-            centered = true,
-            cancel = true
-        })
-        if alert == 'confirm' then
-            TriggerServerEvent("r_communityservice:passData", input[1], input[2], cop)
-            ClNotify('Player ID #' .. input[1] .. ' was given ' .. input[2] .. ' tasks.', 'info')
-        else
-            return
-        end
+    local permission = lib.callback.await('r_communityservice:Perm', false)
+    print(permission)
+    if not permission then return end
+
+    local input = lib.inputDialog('Community Service', {
+        { type = 'input',  label = 'Player ID:', required = true },                          -- input[1]
+        { type = 'number', label = 'Tasks:',     required = true, min = 0, max = Cfg.MaxTasks }, -- input[2]
+    })
+    if not input then return end
+    local alert = lib.alertDialog({
+        header = 'Community Service',
+        content = 'Give ID #' .. input[1] .. ' ' .. input[2] .. ' tasks?',
+        centered = true,
+        cancel = true
+    })
+    if alert == 'confirm' then
+        TriggerServerEvent("r_communityservice:passData", input[1], input[2])
+        ClNotify('Player ID #' .. input[1] .. ' was given ' .. input[2] .. ' tasks.', 'info')
     else
         return
     end
 end, false)
 
 RegisterCommand('endcommunityservice', function()
-    local admin = lib.callback.await('r_communityservice:getAcePerm', false)
+    local admin = lib.callback.await('r_communityservice:Perm', false)
     print('admin:', admin)
     if not admin then return end
     local input = lib.inputDialog('End Community Service', {

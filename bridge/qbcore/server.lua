@@ -13,3 +13,8 @@ function SvNotify(msg, type)
         -- Insert your notification system here
     end
 end
+
+function GetPlayerJobFW(src)
+    local Player = QBCore.Functions.GetPlayer(src)
+    return Player.PlayerData.job.name
+end

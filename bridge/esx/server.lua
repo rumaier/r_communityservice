@@ -19,3 +19,8 @@ function GetPlayerIdentifier(player)
     local id = xPlayer.getIdentifier()
     return id
 end
+
+function GetPlayerJobFW(src)
+    local xPlayer = ESX.GetPlayerFromId(src)
+    return xPlayer.getJob().name
+end
