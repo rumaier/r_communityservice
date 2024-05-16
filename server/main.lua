@@ -1,11 +1,8 @@
 local function SvJobCheck(src)
     local playerData = GetPlayerJobFW(src)
-    print('1:', playerData)
     if not playerData then return false end
-    print('2:', playerData)
     for i = 1, #Cfg.PoliceJobs do
         if playerData == Cfg.PoliceJobs[i] then
-            print(playerData == Cfg.PoliceJobs[i])
             return true
         end
     end
@@ -16,8 +13,7 @@ function PermissionCheck()
     local src = source
     local ace = IsPlayerAceAllowed(src, 'communityservice')
     local job = SvJobCheck(src)
-    if ace or job then print('ace:', ace, 'job:', job) return true end
-    print('didnt get the shits')
+    if ace or job then return true end
     return false
 end
 

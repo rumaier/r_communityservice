@@ -16,8 +16,12 @@ end
 
 local function endPunishment()
     if not onPunishment then return end
-    digZone:remove()
-    SetEntityCoords(PlayerPedId(), initCoords.x, initCoords.y, initCoords.z + 1.0, true, false, false, false)
+    local playerId = cache.playerId
+    DoScreenFadeOut(750)
+    Wait(800)
+    StartPlayerTeleport(playerId, initCoords.x, initCoords.y, (initCoords.z + 1.0), 0, false, true, true)
+    Wait(150)
+    DoScreenFadeIn(375)
     TriggerServerEvent('r_communityservice:returnInven')
     ClNotify('Tasks Fulfilled, you\'re free to go.', 'success')
     hole = { current = nil, last = nil }
@@ -26,13 +30,13 @@ local function endPunishment()
 end
 
 local function startPunishment(tasks)
-    initCoords = GetEntityCoords(PlayerPedId())
-    print(initCoords)
+    local player = cache.ped
+    initCoords = GetEntityCoords(player)
     onPunishment = true
     tasksLeft = tasks
     DoScreenFadeOut(750)
     Wait(800)
-    SetEntityCoords(PlayerPedId(), Cfg.Center, true, false, false, false)
+    SetEntityCoords(player, Cfg.Center, true, false, false, false)
     Wait(150)
     DoScreenFadeIn(375)
     TriggerServerEvent('r_communityservice:confiscateInven')
@@ -42,14 +46,16 @@ local function startPunishment(tasks)
             points = Cfg.Zone,
             thickness = 100,
             onExit = function()
-                SetEntityCoords(PlayerPedId(), hole.current, true, false, false, false)
-                ClNotify('You may leave when you complete your tasks.', 'error')
+                if tasksLeft > 0 then
+                    SetEntityCoords(player, hole.current, true, false, false, false)
+                    ClNotify('You may leave when you complete your tasks.', 'error')
+                end
             end,
             debug = Cfg.ZoneDebug
         })
         getHole()
         while hole.current ~= nil do
-            local pCoords = GetEntityCoords(PlayerPedId())
+            local pCoords = GetEntityCoords(player)
             local mCoords = hole.current
             local distance = #(mCoords - pCoords)
             DrawMarker(0, hole.current.x, hole.current.y, hole.current.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.75, 0.75, 0.75, 255, 0, 0, 80, true, true, 2, false, nil, nil, false)
@@ -62,11 +68,11 @@ local function startPunishment(tasks)
                     lib.requestModel(prop)
                     lib.hideTextUI()
                     local shovel = CreateObject(prop, hole.current.x, hole.current.y, hole.current.z, true, false, false)
-                    AttachEntityToEntity(shovel, PlayerPedId(), GetPedBoneIndex(PlayerPedId(), 28422), 0.0, 0.0, 0.24, 0, 0, 0.0, true, true, false, true, 1, true)
-                    TaskPlayAnim(PlayerPedId(), animDict, 'a_burial', 8.0, 8.0, -1, 1, 1.0, false, false, false)
+                    AttachEntityToEntity(shovel, player, GetPedBoneIndex(player, 28422), 0.0, 0.0, 0.24, 0, 0, 0.0, true, true, false, true, 1, true)
+                    TaskPlayAnim(player, animDict, 'a_burial', 8.0, 8.0, -1, 1, 1.0, false, false, false)
                     ClProgress('Digging Hole...', (Cfg.DigTime * 1000))
                     DeleteEntity(shovel)
-                    ClearPedTasks(PlayerPedId())
+                    ClearPedTasks(player)
                     tasksLeft = tasksLeft - 1
                     if tasksLeft > 0 then
                         ClNotify(''.. tasksLeft.. ' more to go!', 'info')
@@ -81,6 +87,8 @@ local function startPunishment(tasks)
             Wait(0)
         end
         if tasksLeft == 0 then
+            digZone:remove()
+            Wait(100)
             endPunishment()
         end
         Wait(0)
@@ -98,11 +106,10 @@ end)
 
 RegisterCommand('communityservice', function()
     local permission = lib.callback.await('r_communityservice:Perm', false)
-    print(permission)
     if not permission then return end
 
     local input = lib.inputDialog('Community Service', {
-        { type = 'input',  label = 'Player ID:', required = true },                          -- input[1]
+        { type = 'input',  label = 'Player ID:', required = true },                              -- input[1]
         { type = 'number', label = 'Tasks:',     required = true, min = 0, max = Cfg.MaxTasks }, -- input[2]
     })
     if not input then return end
@@ -122,7 +129,6 @@ end, false)
 
 RegisterCommand('endcommunityservice', function()
     local admin = lib.callback.await('r_communityservice:Perm', false)
-    print('admin:', admin)
     if not admin then return end
     local input = lib.inputDialog('End Community Service', {
         { type = 'input',  label = 'Player ID:', required = true },
