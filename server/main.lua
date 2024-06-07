@@ -36,5 +36,3 @@ RegisterServerEvent('r_communityservice:endPunishment', function(target)
 end)
 
 print('ServerSide Is Loaded [r_communityservice, Keeping Criminals Punished Since 2024]')
-print('Why was the parrot in prison?')
-print('Because it was a jail-bird.')
