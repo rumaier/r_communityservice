@@ -19,9 +19,10 @@ QBCore Support is untested.
 1. Download the script files
 2. Place them in your FiveM server's resources folder
 3. Ensure all dependencies are installed
-4. Add `add_ace group.admin communityservice allow` to your server.cfg
-5. Add `ensure r-communityservice` to your server.cfg
-6. Restart Server and Enjoy!
+4. Install `database.sql` from `install` folder
+5. Add `add_ace group.admin communityservice allow` to your server.cfg
+6. Add `ensure r-communityservice` to your server.cfg
+7. Restart Server and Enjoy!
 
 ## Documentation:
 - [Gitbook](https://r-scripts-1.gitbook.io/r_scripts-docs./free-resources/r_communityservice)
