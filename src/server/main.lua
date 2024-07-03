@@ -20,7 +20,7 @@ end
 lib.callback.register('r_communityservice:antiCombatLog', function(src)
     local src = src or source
     local data = MySQL.query.await('SELECT * FROM `r_communityservice` WHERE `identifier` = @identifier', { ['@identifier'] = Framework.getPlayerIdentifier(src) })
-    if not data then return false end
+    if #data == 0 then return false end
     table.insert(onPunishment, { serverId = src, identifier = Framework.getPlayerIdentifier(src), tasks = data[1].tasks, items = json.decode(data[1].items) })
     MySQL.update.await('DELETE FROM `r_communityservice` WHERE `identifier` = @identifier', { ['@identifier'] = Framework.getPlayerIdentifier(src) })
     SendWebhook('Punishment Re-Issued', '', '', GetPlayerName(src), src, data[1].tasks)
