@@ -1,5 +1,5 @@
 local onPunishment = false
-local initCoords = nil
+local initCoords = Cfg.Zone.coords
 local taskList = {}
 local zone = lib.zones.sphere({ coords = Cfg.Zone.coords, radius = Cfg.Zone.radius, debug = Cfg.Debug.zones,
     onEnter = function() 
@@ -15,8 +15,9 @@ local zone = lib.zones.sphere({ coords = Cfg.Zone.coords, radius = Cfg.Zone.radi
     end,
     onExit = function() 
         if not onPunishment then return end
+        local coords = Cfg.Zone.coords
         Framework.notify(_L('not_finished'), 'error')
-        SetEntityCoordsNoOffset(cache.ped, Cfg.Zone.coords, true, true, false) 
+        SetEntityCoordsNoOffset(cache.ped, coords.x, coords.y, coords.z, true, true, false) 
     end
 })
 
@@ -27,7 +28,7 @@ local function endPunishment()
     taskList = {}
     DoScreenFadeOut(750)
     Wait(800)
-    StartPlayerTeleport(cache.playerId, initCoords, 0.0, false, true, true)
+    StartPlayerTeleport(cache.playerId, initCoords.x, initCoords.y, initCoords.z, 0.0, false, true, true)
     Wait(150)
     DoScreenFadeIn(325)
     Framework.notify(_L('finished_comms'), 'success')
@@ -45,14 +46,15 @@ end
 
 local function startPunishment()
     onPunishment = true
+    local coords = Cfg.Zone.coords
     initCoords = GetEntityCoords(cache.ped)
     DoScreenFadeOut(750)
     Wait(800)
-    StartPlayerTeleport(cache.playerId, Cfg.Zone.coords, 0.0, false, true, true)
+    StartPlayerTeleport(cache.playerId, coords.x, coords.y, coords.z, 0.0, false, true, true)
     Wait(150)
     DoScreenFadeIn(325)
     startTaskCounter()
-    local compass = CreateProp('prop_ar_arrow_2', Cfg.Zone.coords, false)
+    local compass = CreateProp('prop_ar_arrow_2', coords, false)
     Framework.notify(_L('starting_comms', #taskList), 'success')
     while true do
         if #taskList <= 0 then    
@@ -66,7 +68,7 @@ local function startPunishment()
         local distance = #(pCoords.xy - task.xy)
         SetEntityCoords(compass, pCoords.x, pCoords.y, pCoords.z + 1.0, true, true, true, true)
         SetEntityHeading(compass, GetHeadingFromVector_2d(task.x - pCoords.x, task.y - pCoords.y) + 90.0)
-        DrawMarker(2, task.x, task.y, z + 1.0, 0, 0, 0, 0, 180.0, 0, 0.8, 0.8, 0.8, 225, 225, 225, 200, true, true, 2, false, nil, nil, false)
+        DrawMarker(2, task.x, task.y, z + 1.0, 0, 0, 0, 0, 180.0, 0, 0.8, 0.8, 0.8, 225, 225, 225, 200, true, true, 2, false, "", "", false)
         if distance > 1.5 then
             SetEntityAlpha(compass, 255, false)
             if lib.isTextUIOpen() then lib.hideTextUI() end
@@ -215,7 +217,7 @@ end
 
 function DrawText2D(font, scale, color, text, position)
     SetTextFont(font)
-    SetTextProportional(1)
+    SetTextProportional(true)
     SetTextScale(0.0, scale)
     SetTextColour(color[1], color[2], color[3], color[4])
     SetTextEdge(1, 0, 0, 0, 255)

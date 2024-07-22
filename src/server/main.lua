@@ -175,6 +175,22 @@ AddEventHandler('playerDropped', function(reason)
     end
 end)
 
+local function checkVersion()
+    if not Cfg.Server.versionCheck then return end
+    local url = 'https://api.github.com/repos/rumaier/r_communityservice/releases/latest'
+    local current = GetResourceMetadata(GetCurrentResourceName(), 'version', 0)
+    PerformHttpRequest(url, function(err, text, headers)
+        if err == 200 then
+            local data = json.decode(text)
+            local latest = data.tag_name
+            if latest ~= current then
+                print('^8[!]^0 ^3'.. _L('update', GetCurrentResourceName()))
+                print('^8[!]^0 ^3https://github.com/rumaier/r_communityservice/releases/latest')
+            end
+        end
+    end, 'GET', '', { ['Content-Type'] = 'application/json' })
+end
+
 AddEventHandler('onResourceStart', function(resourceName)
     if (GetCurrentResourceName() == resourceName) then
         print('------------------------------')
@@ -183,5 +199,6 @@ AddEventHandler('onResourceStart', function(resourceName)
         print(_L('inventory', Core.Inventory))
         print(_L('target', Core.Target))
         print('------------------------------')
+        checkVersion()
     end
 end)

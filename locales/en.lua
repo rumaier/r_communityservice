@@ -47,5 +47,6 @@ Language['en'] = { -- English
     framework = 'Framework: %s',
     inventory = 'Inventory: %s',
     target = 'Target: %s', 
-    cheater = 'Player ID: %s is a suspected cheater!'
+    cheater = 'Player ID: %s is a suspected cheater!',
+    update = 'Please update %s to the latest version from Github',
 }
