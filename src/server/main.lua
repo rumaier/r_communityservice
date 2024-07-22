@@ -184,8 +184,8 @@ local function checkVersion()
             local data = json.decode(text)
             local latest = data.tag_name
             if latest ~= current then
-                print('^8[!]^0 ^3'.. _L('update', GetCurrentResourceName()))
-                print('^8[!]^0 ^3https://github.com/rumaier/r_communityservice/releases/latest')
+                print('^8[!]^0 ^3' .. _L('update', GetCurrentResourceName()) ..'^0')
+                print('^8[!]^0 ^3https://github.com/rumaier/r_communityservice/releases/latest^0')
             end
         end
     end, 'GET', '', { ['Content-Type'] = 'application/json' })
