@@ -68,7 +68,7 @@ local function startPunishment()
         local distance = #(pCoords.xy - task.xy)
         SetEntityCoords(compass, pCoords.x, pCoords.y, pCoords.z + 1.0, true, true, true, true)
         SetEntityHeading(compass, GetHeadingFromVector_2d(task.x - pCoords.x, task.y - pCoords.y) + 90.0)
-        DrawMarker(2, task.x, task.y, z + 1.0, 0, 0, 0, 0, 180.0, 0, 0.8, 0.8, 0.8, 225, 225, 225, 200, true, true, 2, false, "", "", false)
+        DrawMarker(2, task.x, task.y, z + 1.0, 0, 0, 0, 0, 180.0, 0, 0.8, 0.8, 0.8, 225, 225, 225, 200, true, true, 2, false, false, false, false)
         if distance > 1.5 then
             SetEntityAlpha(compass, 255, false)
             if lib.isTextUIOpen() then lib.hideTextUI() end
