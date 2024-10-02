@@ -33,8 +33,6 @@ function debug(...)
 end
 
 AddEventHandler('onResourceStart', function(resource)
-    print(resource)
-    print(GetResourceMetadata(resource, 'version', 0))
     if (resource == GetCurrentResourceName()) then
         print('------------------------------')
         print(_L('version', resource, GetResourceMetadata(resource, 'version', 0)))
