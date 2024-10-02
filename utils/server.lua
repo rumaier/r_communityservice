@@ -19,7 +19,7 @@ local function checkVersion()
             local latest = data.tag_name
             if latest ~= current then
                 print('[^3WARNING^0] '.. _L('update', GetCurrentResourceName()))
-                print('[^3WARNING^0] https://keymaster.fivem.net/ ^0')
+                print('[^3WARNING^0] https://github.com/rumaier/r_communityservice/releases/tag/2.0.3 ^0')
             end
         end
     end, 'GET', '', { ['Content-Type'] = 'application/json' })
