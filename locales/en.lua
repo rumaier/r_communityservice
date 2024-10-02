@@ -17,7 +17,7 @@ Language['en'] = { -- English
     click_to_remove = 'Tasks Remaining: %s (Click to Remove)',
 
     -- TextUI Labels
-    dig_hole = '[E] - Dig Hole',
+    dig_hole = 'Dig Hole',
 
     -- Progress Bars
     digging = 'Digging Hole...',

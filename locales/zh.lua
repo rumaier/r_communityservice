@@ -17,7 +17,7 @@ Language['zh'] = { -- Chinese
     click_to_remove = '剩余任务：%s（点击以移除）',
 
     -- TextUI 标签
-    dig_hole = '[E] - 挖洞',
+    dig_hole = '挖洞',
 
     -- 进度条
     digging = '正在挖洞...',

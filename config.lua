@@ -36,24 +36,11 @@ Cfg = {
         maxTasks = 60, -- Determines the maximum amount of tasks that can be assigned to a player.
         digTime = 10,  -- Determines the time it takes to dig a hole.
     },
-    --               _     _                 _
-    -- __      _____| |__ | |__   ___   ___ | | __
-    -- \ \ /\ / / _ \ '_ \| '_ \ / _ \ / _ \| |/ /
-    --  \ V  V /  __/ |_) | | | | (_) | (_) |   <
-    --   \_/\_/ \___|_.__/|_| |_|\___/ \___/|_|\_\
-    Webhook = {
-        enabled = true,         -- Enables Discord Webhook.
-        url = 'INSERT_WEBHOOK', -- Your Discord Webhook URL.
-    },
     --      _      _
     --   __| | ___| |__  _   _  __ _
     --  / _` |/ _ \ '_ \| | | |/ _` |
     -- | (_| |  __/ |_) | |_| | (_| |
     --  \__,_|\___|_.__/ \__,_|\__, |
     --                         |___/
-    Debug = {
-        prints = false,  -- Enables debug prints, not recommended for production.
-        targets = false, -- Enables debug targets, not recommended for production.
-        zones = false,   -- Enables debug zones, not recommended for production.
-    }
+    Debug = true -- Enables debug mode. (DO NOT ENABLE IN PRODUCTION)
 }
