@@ -47,7 +47,7 @@ RegisterNetEvent('r_communityservice:confiscateItems', function()
     local src = source
     local items = Core.Inventory.GetInventoryItems(src)
     punished[#punished].items = items
-    for _, item in ipairs(items) do
+    for _, item in pairs(items) do
         Core.Inventory.RemoveItem(src, item, item.count)
     end
     debug('[DEBUG] - confiscated items:', items)
@@ -56,7 +56,7 @@ end)
 local function returnInventory(src)
     for _, data in pairs(punished) do
         if tonumber(data.serverId) == tonumber(src) then
-            for _, item in ipairs(data.items) do
+            for _, item in pairs(data.items) do
                 Core.Inventory.AddItem(src, item.name, item.count, item.metadata)
             end
             punished[_].items = {}

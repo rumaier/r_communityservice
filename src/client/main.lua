@@ -64,8 +64,8 @@ local function giveCommsDialog()
     local players = GetActivePlayers()
     for i = 1, #players do
         local serverId = GetPlayerServerId(players[i])
-        if tonumber(input[1]) == tonumber(serverId) then
-            local issued = lib.callback.await('r_communityservice:issuePunishment', false, input[1], input[2])
+        if (tonumber(input[1]) == tonumber(serverId)) then
+            local issued = lib.callback.await('r_communityservice:issuePunishment', false, tonumber(input[1]), input[2])
             if issued then
                 return Core.Framework.Notify(_L('comms_given', input[1], input[2]), 'success')
             end
