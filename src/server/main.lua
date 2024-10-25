@@ -48,7 +48,7 @@ RegisterNetEvent('r_communityservice:confiscateItems', function()
     local items = Core.Inventory.GetInventoryItems(src)
     punished[#punished].items = items
     for _, item in pairs(items) do
-        Core.Inventory.RemoveItem(src, item, item.count)
+        Core.Inventory.RemoveItem(src, item.name, item.count)
     end
     debug('[DEBUG] - confiscated items:', items)
 end)
