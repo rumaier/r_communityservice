@@ -12,7 +12,6 @@ Cfg = {
     -- |___/\___|_|    \_/ \___|_|
     Server = {
         language = 'en',          -- Determines the language. ('en': English, 'es': Spanish, 'fr': French, 'de': German, 'pt': Portuguese, 'zh': Chinese)
-        notification = 'default', -- Determines the notification system. ('default', 'ox', 'custom': can be customized in bridge/framework/YOURFRAMEWORK)
         versionCheck = true,      -- Determines if the version check is enabled.
         policeJobs = {            -- Determines the police jobs, you can add as many as you need.
             'police',
