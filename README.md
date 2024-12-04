@@ -12,7 +12,7 @@ This is a script designed to be a consistent tool that you can trust to efficien
 
 ## Documentation
 
-[Gitbook](https://r-scripts-1.gitbook.io/r_scripts-docs./)
+[Gitbook](https://r-scripts-1.gitbook.io/r_scripts-docs./free-resources/r_communityservice)
 
 ## Support
 
