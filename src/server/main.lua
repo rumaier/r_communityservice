@@ -29,7 +29,7 @@ end)
 
 lib.callback.register('r_communityservice:getPermissionLevel', function(src)
     local ace, job = IsPlayerAceAllowed(src, 'communityservice'), Core.Framework.GetPlayerJob(src)
-    debug('[DEBUG] - ace:', ace, '| job:', job)
+    _debug('[DEBUG] - ace:', ace, '| job:', job)
     if ace then return 2 end
     for i = 1, #Cfg.Server.policeJobs do
         if job == Cfg.Server.policeJobs[i] then
@@ -50,7 +50,7 @@ RegisterNetEvent('r_communityservice:confiscateItems', function()
     for _, item in pairs(items) do
         Core.Inventory.RemoveItem(src, item.name, item.count)
     end
-    debug('[DEBUG] - confiscated items:', items)
+    _debug('[DEBUG] - confiscated items:', items)
 end)
 
 local function returnInventory(src)
@@ -60,7 +60,7 @@ local function returnInventory(src)
                 Core.Inventory.AddItem(src, item.name, item.count, item.metadata)
             end
             punished[_].items = {}
-            debug('[DEBUG] - returned items:', data.items)
+            _debug('[DEBUG] - returned items:', data.items)
             break
         end
     end
@@ -71,7 +71,7 @@ lib.callback.register('r_communityservice:issuePunishment', function(src, target
     local identifier = Core.Framework.GetPlayerIdentifier(target)
     table.insert(punished, { serverId = target, identifier = identifier, tasks = tasks, items = {} })
     TriggerClientEvent('r_communityservice:issuePunishment', target, taskList)
-    debug('[DEBUG] - issued punishment:', target, '| tasks:', tasks)
+    _debug('[DEBUG] - issued punishment:', target, '| tasks:', tasks)
     return true
 end)
 
@@ -82,7 +82,7 @@ lib.callback.register('r_communityservice:removePunishment', function(src, targe
             while #punished[_].items > 0 do Wait(100) end
             table.remove(punished, _)
             TriggerClientEvent('r_communityservice:removePunishment', target)
-            debug('[DEBUG] - removed punishment:', target)
+            _debug('[DEBUG] - removed punishment:', target)
             return true
         end
     end
@@ -92,13 +92,13 @@ lib.callback.register('r_communityservice:removeTask', function(src)
     for _, data in pairs(punished) do
         if tonumber(data.serverId) == tonumber(src) then
             punished[_].tasks = punished[_].tasks - 1
-            debug('[DEBUG] - removed task:', src)
+            _debug('[DEBUG] - removed task:', src)
             if punished[_].tasks == 0 then
                 returnInventory(src)
                 while #punished[_].items > 0 do Wait(100) end
                 table.remove(punished, _)
                 TriggerClientEvent('r_communityservice:removePunishment', src)
-                debug('[DEBUG] - removed punishment:', src)
+                _debug('[DEBUG] - removed punishment:', src)
             end
             return true
         end

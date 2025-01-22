@@ -15,7 +15,7 @@ local function checkResourceVersion()
     SetTimeout(3600000, checkResourceVersion)
 end
 
-function debug(...)
+function _debug(...)
     if Cfg.Debug then
         print(...)
     end

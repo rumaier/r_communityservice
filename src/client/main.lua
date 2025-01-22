@@ -4,7 +4,7 @@ local taskList = {}
 local zone = lib.zones.sphere({ coords = Cfg.Zone.coords, radius = Cfg.Zone.radius, debug = Cfg.Debug,
     onEnter = function()
         local permLevel = lib.callback.await('r_communityservice:getPermissionLevel', false)
-        debug('[DEBUG] - permLevel:', permLevel, '| onPunishment:', onPunishment)
+        _debug('[DEBUG] - permLevel:', permLevel, '| onPunishment:', onPunishment)
         if permLevel > 0 or onPunishment then return end
         local offsetCoords = GetOffsetFromEntityInWorldCoords(cache.ped, 0.0, -5.0, 0.0)
         local ground, z = GetGroundZFor_3dCoord(offsetCoords.x, offsetCoords.y, offsetCoords.z, false)
@@ -148,7 +148,7 @@ end
 
 RegisterCommand('communityservice', function()
     local permLevel = lib.callback.await('r_communityservice:getPermissionLevel', false)
-    debug('[DEBUG] - permLevel:', permLevel)
+    _debug('[DEBUG] - permLevel:', permLevel)
     if permLevel == 0 then return Core.Framework.Notify(_L('permission_denied'), 'error') end
     openCommunityServiceMenu(permLevel)
 end, false)
