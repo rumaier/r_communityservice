@@ -3,19 +3,15 @@ local serving = {}
 local zone = lib.zones.sphere({ coords = Cfg.Options.ZoneCoords, radius = Cfg.Options.ZoneRadius })
 
 local function getPlayerAccess(src)
+    local access = 0
     local ace = IsPlayerAceAllowed(src, 'communityservice')
     local job = Core.Framework.getPlayerJob(src)
     local policeJobs = Cfg.Options.PoliceJobs
     _debug('[^6DEBUG^0] - Checking access for ' .. src ..' | Ace: ' .. tostring(ace) .. ' | Job: ' .. tostring(job.name))
-    if ace then
-        return 3
-    elseif lib.table.contains(policeJobs, job.name) then
-        return 2
-    elseif serving[src] then
-        return 1
-    else
-        return 0
-    end
+    if serving[src] then return 1 end
+    if lib.table.contains(policeJobs, job.name) then access = 2 end
+    if ace then access = 3 end
+    return access
 end
 
 lib.callback.register('r_communityservice:getPlayerAccess', getPlayerAccess)
@@ -36,10 +32,11 @@ lib.callback.register('r_communityservice:requestTask', function(src)
     if not identifier then _debug('[^1ERROR^0] - Could not fetch identifier for player ID: ' .. src) return false end
     local data = CommsCache[identifier]
     if not data then _debug('[^1ERROR^0] - No community service record found for player ID: ' .. src) return false end
-    if serving[src] then
+    if type(serving[src]) == 'vector3' then
+        _debug('[^6DEBUG^0] - Distance checking player '.. src ..' at task location: ' .. tostring(serving[src]))
         local player = GetPlayerPed(src)
         local playerCoords = GetEntityCoords(player)
-        local dist = #(playerCoords - serving[src])
+        local dist = #(playerCoords.xy - serving[src].xy)
         if dist > 2.0 then _debug('[^1ERROR^0] - Player: ' .. src .. ' is too far from their task location. Distance: ' .. dist) return false end
     end
     if data.tasks == 0 then return releasePlayer(src, identifier) end
@@ -52,7 +49,7 @@ lib.callback.register('r_communityservice:requestTask', function(src)
     if updated == 0 then _debug('[^1ERROR^0] - Failed to update database for player ID: ' .. src) return false end
     local radius = (zone.radius or Cfg.Options.ZoneRadius) - 5.0
     repeat
-        serving[src] = GetOffsetFromCoordAndHeadingInWorldCoords(zone.coords.x, zone.coords.y, zone.coords.z, math.random(0, 360), math.random(5.0, radius), 0, 0)
+        serving[src] = vec3(zone.coords.x + math.random(-radius, radius), zone.coords.y + math.random(-radius, radius), zone.coords.z)
         Wait(100)
     until zone:contains(serving[src])
     _debug('[^6DEBUG^0] - Sending coords: ' .. serving[src] .. ' to player: ' .. src)

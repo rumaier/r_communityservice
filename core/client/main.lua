@@ -10,7 +10,7 @@ RegisterNetEvent('r_communityservice:releaseFromCommunityService', function()
     Wait(150)
     DoScreenFadeIn(325)
     initCoords = nil
-    Core.Interface.notify(_L('comms_complete'), 'success', 5000)
+    Core.Interface.notify(_L('noti_title'), _L('comms_complete'), 'success', 5000)
 end)
 
 local function taskCommunityService()
@@ -30,7 +30,7 @@ local function taskCommunityService()
                 if distance > 1.0 then
                     if not Core.Interface.isHelpTextActive() then Core.Interface.showHelpText(_L('task_help')) end
                     if Core.Interface.isTextUiActive() then Core.Interface.hideTextUI() end
-                    DrawMarker(2, task.x, task.y, z + 2.5, 0, 0, 0, 0, 180.0, 0, 0.8, 0.8, 0.8, 225, 225, 225, 200, true, true, 2, false, false, false, false)
+                    DrawMarker(2, task.x, task.y, (ground and z or task.z) + 2.5, 0, 0, 0, 0, 180.0, 0, 0.8, 0.8, 0.8, 255, 55, 55, 200, true, true, 2, false, false, false, false)
                 elseif distance < 1.0 then
                     if Core.Interface.isHelpTextActive() then Core.Interface.hideHelpText() end
                     if not Core.Interface.isTextUiActive() then Core.Interface.showTextUI(_L('dig_here')) end
@@ -47,7 +47,7 @@ local function taskCommunityService()
                             prop = { model = `prop_tool_shovel`, bone = 28422, pos = vec3(0.0, 0.0, 0.24), rot = vec3(0.0, 0.0, 0.0) }
                         }) then
                             task = nil
-                            Core.Interface.notify(_L('task_complete', resp), 'success')
+                            Core.Interface.notify(_L('noti_title'), _L('task_complete', resp), 'success')
                         end
                     end
                 end
@@ -66,25 +66,27 @@ RegisterNetEvent('r_communityservice:teleportToCommunityService', function(tasks
     StartPlayerTeleport(cache.playerId, coords.x, coords.y, coords.z, heading, false, true, false)
     Wait(150)
     DoScreenFadeIn(325)
-    Core.Interface.notify(_L('received_comms', tasks), 'info', 5000)
+    Core.Interface.notify(_L('noti_title'), _L('received_comms', tasks), 'info', 5000)
 end)
 
 local function checkCanEnterZone()
+    _debug('[^6DEBUG^0] - Attempting to enter community service zone...')
     local accessLevel = lib.callback.await('r_communityservice:getPlayerAccess', false)
+    _debug('[^6DEBUG^0] - Player access level: ' .. accessLevel)
     if accessLevel < 1 then
         local behind = GetOffsetFromEntityGivenWorldCoords(cache.ped, 0.0, -5.0, 1.0)
         SetEntityCoords(cache.ped, behind.x, behind.y, behind.z, true, false, false, true)
-        Core.Interface.notify(_L('restricted_area'), 'error')
+        Core.Interface.notify(_L('noti_title'), _L('restricted_area'), 'error')
         return
     end
-    if accessLevel == 1 and not serving then taskCommunityService() end
+    if accessLevel == 1 then taskCommunityService() end
 end
 
 local function checkCanExitZone()
     if serving then
         local coords = Cfg.Options.ZoneCoords
         SetEntityCoords(cache.ped, coords.x, coords.y, coords.z, true, false, false, true)
-        Core.Interface.notify(_L('finish_comms'), 'error')
+        Core.Interface.notify(_L('noti_title'), _L('finish_comms'), 'error')
         _debug('[^6DEBUG^0] - Teleported back to zone to finish tasks')
     end
 end

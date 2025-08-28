@@ -1,13 +1,13 @@
 local function attemptAssignCommunityService(target, tasks)
     local success, reason = lib.callback.await('r_communityservice:assignCommunityService', false, target, tasks)
     if success then 
-        Core.Interface.notify(_L('assigned_comms', tasks, target), 'success')
+        Core.Interface.notify(_L('noti_title'), _L('assigned_comms', tasks, target), 'success')
         _debug('[^6DEBUG^0] - Assigned ' .. tasks .. ' tasks to player ID: ' .. target)
     else
         if not reason then
             _debug('[^1ERROR^0] - Failed to assign comms to player ' .. target .. ', check server console for details.')
         else
-            Core.Interface.notify(reason, 'error')
+            Core.Interface.notify(_L('noti_title'), reason, 'error')
         end
     end
 end
@@ -20,7 +20,7 @@ local function triggerGiveCommsInput()
     })
     if not response or #response ~= 2 then _debug('[^1ERROR^0] - Invalid input dialog response') return end
     local target, tasks = tonumber(response[1]), tonumber(response[2])
-    if target == cache.serverId then Core.Interface.notify(_L('no_self_assign'), 'error') return end
+    if target == cache.serverId then Core.Interface.notify(_L('noti_title'), _L('no_self_assign'), 'error') return end
     _debug('[^6DEBUG^0] - Attempting to assign ' .. tasks .. ' tasks to player ID: ' .. target)
     attemptAssignCommunityService(target, tasks)
 end
@@ -28,14 +28,14 @@ end
 local function attemptRemoveCommunityService(target)
     local success, reason = lib.callback.await('r_communityservice:removeCommunityService', false, target)
     if success then
-        Core.Interface.notify(_L('remove_comms', target), 'success')
+        Core.Interface.notify(_L('noti_title'), _L('remove_comms', target), 'success')
         _debug('[^6DEBUG^0] - Removed community service from player ID: ' .. target)
         Core.Interface.showContext('comms_manage')
     else
         if not reason then
             _debug('[^1ERROR^0] - Failed to remove comms from player ' .. target .. ', check server console for details.')
         else
-            Core.Interface.notify(reason, 'error')
+            Core.Interface.notify(_L('noti_title'), reason, 'error')
         end
     end
 end
@@ -61,7 +61,7 @@ local function openCommunityServiceManagementMenu()
     local assigned = lib.callback.await('r_communityservice:fetchAssignedPlayers', false)
     for _, player in pairs(assigned) do
         table.insert(options, {
-            title = player.name .. '(' .. player.id .. ')',
+            title = player.name .. ' (' .. player.id .. ')',
             description = _L('task_amount') .. ': ' .. player.tasks .. ' | ' .. _L('click_to_remove'),
             icon = 'user',
             onSelect = function()
@@ -101,6 +101,6 @@ end
 
 RegisterNetEvent('r_communityservice:openMenu', function()
     local accessLevel = lib.callback.await('r_communityservice:getPlayerAccess', false)
-    if accessLevel < 2 then Core.Interface.notify(_L('no_access'), 'error') return end
+    if accessLevel < 2 then Core.Interface.notify(_L('noti_title'), _L('no_access'), 'error') return end
     openCommunityServiceMenu(accessLevel)
 end)

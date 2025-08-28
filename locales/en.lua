@@ -2,6 +2,7 @@ Language = Language or {}
 Language['en'] = { -- English
 
     -- Notifications
+    noti_title = 'Community Service',
     restricted_area = 'You cannot enter this area.',
     no_access = 'You are not allowed to do this.',
     no_self_assign = 'You cannot assign community service to yourself.',
@@ -27,6 +28,8 @@ Language['en'] = { -- English
     task_help = 'Go to the marked location and dig the hole.',
     dig_here = '[E] - Dig Here',
     dig_progress = 'Digging...',
+    refresh = 'Refresh',
+    go_back = 'Go Back',
 
     -- Webhook
     player_id = 'Player ID',
