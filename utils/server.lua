@@ -9,7 +9,7 @@ DatabaseBuilt = false
 local function buildDatabase()
   local built = MySQL.query.await('SHOW TABLES LIKE "'.. resource .. '"')
   if #built > 0 then DatabaseBuilt = true return end
-  built = MySQL.query.await('CREATE TABLE `'.. resource .. '` ( `unit` tinyint(4) NOT NULL, PRIMARY KEY (`unit`) )')
+  built = MySQL.query.await('CREATE TABLE `'.. resource .. '` ( id INT AUTO_INCREMENT PRIMARY KEY, identifier VARCHAR(64) NOT NULL, tasks_remaining INT NOT NULL DEFAULT 0, UNIQUE KEY `idx_identifier` (`identifier`) )')
   if not built then print('[^8ERROR^0] - Failed to create database table for '.. resource) end
   print('[^2SUCCESS^0] - Database table for '.. resource .. ' created.')
   DatabaseBuilt = true
@@ -35,15 +35,15 @@ AddEventHandler('onResourceStart', function(resourceName)
   if Cfg.Debug then print(_L('debug_enabled')) end
   print('------------------------------')
   checkResourceVersion()
-  -- buildDatabase()
+  buildDatabase()
 end)
 
 function SendWebhook(src, event, fields)
-  if not Cfg.Webhook.Enabled then return end
+  if not Cfg.Options.WebhookEnabled then return end
   local srcName = src > 0 and GetPlayerName(src) or 'Server'
   local srcId = src > 0 and Core.Framework.GetPlayerIdentifier(src) or 'N/A'
 
-  PerformHttpRequest(Cfg.Webhook.Url, function()
+  PerformHttpRequest(Cfg.WebhookUrl, function()
   end, 'POST', json.encode({
     username = 'Resource Logs', 
     avatar_url = 'https://i.ibb.co/N62P014g/logo-2.jpg', 

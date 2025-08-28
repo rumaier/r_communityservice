@@ -23,7 +23,7 @@ Cfg = {
     --  \___/| .__/ \__|_|\___/|_| |_|___/
     --       |_|
     Options = {
-        NuiColor = 'violet', -- Colors: ('dark', 'gray', 'red', 'pink', 'grape', 'violet', 'indigo', 'blue', 'cyan', 'teal', 'green', 'lime', 'yellow', 'orange')
+        Command = 'communityservice', -- Command to open the community service menu
 
         PoliceJobs = { -- Jobs that can assign tasks
             'police',
@@ -35,6 +35,9 @@ Cfg = {
 
         MaxTasks = 60, -- Maximum number of tasks admins/police can assign (number)
         TaskTime = 10, -- Time (in seconds) to complete each task (number)
+
+        WebhookEnabled = true, -- Enable webhook logging (true: enabled, false: disabled)
+        -- Webhook URL can be set in core/server/webhook.lua
     },
     --      _      _
     --   __| | ___| |__  _   _  __ _

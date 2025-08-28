@@ -20,15 +20,3 @@ end
 math.clamp = function(value, min, max)
   return math.max(min, math.min(max, value))
 end
-
-table.empty = function(t)
-  return next(t) == nil
-end
-
-table.contains = function(t, value)
-  if not next(t) then return false end
-  for _, v in pairs(t) do
-    if v == value then return true end
-  end
-  return false
-end
