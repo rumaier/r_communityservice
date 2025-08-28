@@ -25,18 +25,18 @@ Cfg = {
     Options = {
         Command = 'communityservice', -- Command to open the community service menu
 
-        PoliceJobs = { -- Jobs that can assign tasks
+        PoliceJobs = {                -- Jobs that can assign tasks
             'police',
             -- 'sheriff',
         },
 
-        ZoneCoords = vec3(1493.966, 2405.158, 48.644), -- Zone coordinates (vector3)
-        ZoneRadius = 55.0,                             -- Zone radius (number)
+        ZoneCoords = vec3(1496.70, 2409.15, 48.24), -- Zone coordinates (vector3)
+        ZoneRadius = 50.0,                          -- Zone radius (number)
 
-        MaxTasks = 60, -- Maximum number of tasks admins/police can assign (number)
-        TaskTime = 10, -- Time (in seconds) to complete each task (number)
+        MaxTasks = 60,                              -- Maximum number of tasks admins/police can assign (number)
+        TaskTime = 10,                              -- Time (in seconds) to complete each task (number)
 
-        WebhookEnabled = true, -- Enable webhook logging (true: enabled, false: disabled)
+        WebhookEnabled = true,                      -- Enable webhook logging (true: enabled, false: disabled)
         -- Webhook URL can be set in core/server/webhook.lua
     },
     --      _      _

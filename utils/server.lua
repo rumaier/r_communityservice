@@ -9,7 +9,14 @@ DatabaseBuilt = false
 local function buildDatabase()
   local built = MySQL.query.await('SHOW TABLES LIKE "'.. resource .. '"')
   if #built > 0 then DatabaseBuilt = true return end
-  built = MySQL.query.await('CREATE TABLE `'.. resource .. '` ( id INT AUTO_INCREMENT PRIMARY KEY, identifier VARCHAR(64) NOT NULL, tasks_remaining INT NOT NULL DEFAULT 0, UNIQUE KEY `idx_identifier` (`identifier`) )')
+  built = MySQL.query.await([[
+        CREATE TABLE `]].. resource ..[[` (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            identifier VARCHAR(64) NOT NULL,
+            tasks_remaining INT NOT NULL DEFAULT 0,
+            UNIQUE KEY `idx_identifier` (`identifier`)
+        )
+    ]])
   if not built then print('[^8ERROR^0] - Failed to create database table for '.. resource) end
   print('[^2SUCCESS^0] - Database table for '.. resource .. ' created.')
   DatabaseBuilt = true
