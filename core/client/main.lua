@@ -22,8 +22,14 @@ local function taskCommunityService()
             if not task then
                 task, resp = lib.callback.await('r_communityservice:requestTask', false)
                 if resp == 'done' then serving = false break end
+                if resp == 'sv_err' then
+                    _debug('[^1ERROR^0] - Unable to fetch task, read server console for details.')
+                    serving = false
+                    break
+                end
             end
             if task then
+                _debug('[^6DEBUG^0] - Current task location: ' .. task)
                 local playerCoords = GetEntityCoords(cache.ped)
                 local distance = #(playerCoords.xy - task.xy)
                 local ground, z = GetGroundZFor_3dCoord(task.x, task.y, task.z + 50.0, false)
@@ -47,7 +53,7 @@ local function taskCommunityService()
                             prop = { model = `prop_tool_shovel`, bone = 28422, pos = vec3(0.0, 0.0, 0.24), rot = vec3(0.0, 0.0, 0.0) }
                         }) then
                             task = nil
-                            Core.Interface.notify(_L('noti_title'), _L('task_complete', resp), 'success')
+                            if resp > 0 then Core.Interface.notify(_L('noti_title'), _L('task_complete', resp), 'success') end
                         end
                     end
                 end
@@ -57,7 +63,7 @@ local function taskCommunityService()
     end)
 end
 
-RegisterNetEvent('r_communityservice:teleportToCommunityService', function(tasks)
+local function teleportToZone(tasks)
     local coords = Cfg.Options.ZoneCoords
     local heading = GetEntityHeading(cache.ped)
     initCoords = GetEntityCoords(cache.ped)
@@ -66,8 +72,10 @@ RegisterNetEvent('r_communityservice:teleportToCommunityService', function(tasks
     StartPlayerTeleport(cache.playerId, coords.x, coords.y, coords.z, heading, false, true, false)
     Wait(150)
     DoScreenFadeIn(325)
-    Core.Interface.notify(_L('noti_title'), _L('received_comms', tasks), 'info', 5000)
-end)
+    if tasks > 0 then Core.Interface.notify(_L('noti_title'), _L('received_comms', tasks), 'info', 5000) end
+end
+
+RegisterNetEvent('r_communityservice:teleportToCommunityService', teleportToZone)
 
 local function checkCanEnterZone()
     _debug('[^6DEBUG^0] - Attempting to enter community service zone...')
@@ -101,4 +109,9 @@ function InitializeZone()
         debug = Cfg.Debug,
     })
     _debug('[^6DEBUG^0] - Zone initialized at coords: ' .. zone.coords .. ' with radius: ' .. zone.radius)
+end
+
+function TriggerRelogCheck()
+    local assigned, tasks = lib.callback.await('r_communityservice:runPlayerRelogCheck', false)
+    if assigned then teleportToZone(tasks) end
 end
