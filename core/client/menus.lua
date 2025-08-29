@@ -20,7 +20,7 @@ local function triggerGiveCommsInput()
     })
     if not response or #response ~= 2 then _debug('[^1ERROR^0] - Invalid input dialog response') return end
     local target, tasks = tonumber(response[1]), tonumber(response[2])
-    -- if target == cache.serverId then Core.Interface.notify(_L('noti_title'), _L('no_self_assign'), 'error') return end
+    if target == cache.serverId then Core.Interface.notify(_L('noti_title'), _L('no_self_assign'), 'error') return end
     _debug('[^6DEBUG^0] - Attempting to assign ' .. tasks .. ' tasks to player ID: ' .. target)
     attemptAssignCommunityService(target, tasks)
 end
