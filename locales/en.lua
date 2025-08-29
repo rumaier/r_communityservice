@@ -32,9 +32,16 @@ Language['en'] = { -- English
     go_back = 'Go Back',
 
     -- Webhook
+    comms_assigned = 'Community Service Assigned',
+    comms_removed = 'Community Service Removed',
+    comms_completed = 'Community Service Completed',
+    
     player_id = 'Player ID',
     username = 'Username',
     identifier = 'Identifier',
+    assigner_id = 'Assigner ID',
+    tasks_assigned = 'Tasks Assigned',
+    remover_id = 'Remover ID',
 
     -- Console
     resource_version = '%s | v%s',

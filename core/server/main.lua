@@ -49,10 +49,10 @@ local function releasePlayer(src, identifier)
     local deleted = MySQL.query.await('DELETE FROM r_communityservice WHERE identifier = ?', { identifier })
     if not deleted then _debug('[^1ERROR^0] - Failed to delete database record for player ID: ' .. src) return false, 'sv_err' end
     CommsCache[identifier] = nil
-    if Cfg.Options.WebhookEnabled then --[[ //TODO: implement webhook  ]] end
     _debug('[^6DEBUG^0] - Releasing player: ' .. src .. ' from community service.')
     TriggerClientEvent('r_communityservice:releaseFromCommunityService', src)
     serving[src] = nil
+    SendWebhook(src, _L('comms_completed'), {})
     return false, 'done'
 end
 
@@ -99,7 +99,12 @@ lib.callback.register('r_communityservice:assignCommunityService', function(src,
     ]], { identifier, tasks, json.encode(inventory) })
     if not inserted then _debug('[^1ERROR^0] - Failed to insert/update database for player ID: ' .. target) return false end
     CommsCache[identifier] = { identifier = identifier, tasks_remaining = tasks, stored_items = inventory }
-    if Cfg.Options.WebhookEnabled then --[[ //TODO: implement webhook  ]] end
+    SendWebhook(target, _L('comms_assigned'), {
+        { name = _L('assigner_id'), value = '`'..src..'`', inline = true },
+        { name = _L('username'), value = '`'..GetPlayerName(src)..'`', inline = true },
+        { name = utf8.char(0x200B), value = utf8.char(0x200B), inline = true },
+        { name = _L('tasks_assigned'), value = '`'..tasks..'`', inline = false },
+    })
     _debug('[^6DEBUG^0] - Assigned ' .. tasks .. ' tasks to ID: ' .. target ..', sending player...')
     TriggerClientEvent('r_communityservice:teleportToCommunityService', target, tasks)
     serving[target] = true
@@ -114,7 +119,11 @@ lib.callback.register('r_communityservice:removeCommunityService', function(src,
     local deleted = MySQL.query.await('DELETE FROM r_communityservice WHERE identifier = ?', { identifier })
     if not deleted then _debug('[^1ERROR^0] - Failed to delete database record for player ID: ' .. target) return false end
     CommsCache[identifier] = nil
-    if Cfg.Options.WebhookEnabled then --[[ //TODO: implement webhook  ]] end
+    SendWebhook(target, _L('comms_removed'), {
+        { name = _L('remover_id'), value = '`'..src..'`', inline = true },
+        { name = _L('username'), value = '`'..GetPlayerName(src)..'`', inline = true },
+        { name = utf8.char(0x200B), value = utf8.char(0x200B), inline = true },
+    })
     _debug('[^6DEBUG^0] - Removed comms from ID: ' .. target ..', releasing player...')
     TriggerClientEvent('r_communityservice:releaseFromCommunityService', target)
     serving[target] = nil
