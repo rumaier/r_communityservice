@@ -5,7 +5,7 @@ local framework = Core.Framework.Current
 local onPlayerLoaded = framework == 'es_extended' and 'esx:playerLoaded' or 'QBCore:Client:OnPlayerLoaded'
 RegisterNetEvent(onPlayerLoaded, function()
     InitializeZone()
-    TriggerRelogCheck()
+    SetTimeout(1000, TriggerRelogCheck)
 end)
 
 function _debug(...)
