@@ -64,6 +64,7 @@ local function taskCommunityService()
 end
 
 local function teleportToZone(tasks)
+    if serving then return end
     local coords = Cfg.Options.ZoneCoords
     local heading = GetEntityHeading(cache.ped)
     initCoords = GetEntityCoords(cache.ped)
@@ -113,5 +114,13 @@ end
 
 function TriggerRelogCheck()
     local assigned, tasks = lib.callback.await('r_communityservice:runPlayerRelogCheck', false)
-    if assigned then teleportToZone(tasks) end
+    if assigned then
+        local coords = GetEntityCoords(cache.ped)
+        local inZone = zone:contains(coords)
+        if inZone then
+            checkCanEnterZone()
+        else
+            teleportToZone(tasks)
+        end
+    end
 end
