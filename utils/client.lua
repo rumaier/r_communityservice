@@ -7,8 +7,3 @@ RegisterNetEvent(onPlayerLoaded, function()
     InitializeZone()
     SetTimeout(1000, TriggerRelogCheck)
 end)
-
-function _debug(...)
-    if not Cfg.Debug then return end
-    print(...)
-end
