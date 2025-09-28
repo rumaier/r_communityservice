@@ -1,52 +1,52 @@
 Language = Language or {}
 Language['de'] = { -- German
 
-    -- Menü-Titel
-    comm_service = 'Gemeinschaftsdienst',
-    give_comms = 'Gemeinschaftsdienst vergeben',
-    give_comms_desc = 'Geben Sie einem Spieler Gemeinschaftsdienst.',
-    manage_comms = 'Gemeinschaftsdienst verwalten',
-    manage_comms_desc = 'Verwalten Sie den Gemeinschaftsdienst eines Spielers.',
-    remove_comms = 'Gemeinschaftsdienst entfernen?',
-    remove_comms_desc = 'Sind Sie sicher, dass Sie den Gemeinschaftsdienst dieses Spielers entfernen möchten?',
+    -- Notifications
+    noti_title = 'Gemeinnützige Arbeit',
+    restricted_area = 'Sie können diesen Bereich nicht betreten.',
+    no_access = 'Sie sind nicht berechtigt, dies zu tun.',
+    no_self_assign = 'Sie können sich nicht selbst zu gemeinnütziger Arbeit verurteilen.',
+    player_not_found = 'Spieler ID %s nicht gefunden.',
+    assigned_comms = 'Sie haben %s gemeinnützige Arbeitsaufgaben an %s zugewiesen.',
+    received_comms = 'Ihnen wurden %s gemeinnützige Arbeitsaufgaben zugewiesen.',
+    finish_comms = 'Sie müssen Ihre gemeinnützige Arbeit beenden, bevor Sie den Bereich verlassen.',
+    task_complete = 'Aufgabe abgeschlossen! %s Aufgaben verbleibend.',
+    comms_complete = 'Sie haben Ihre gemeinnützige Arbeit abgeschlossen. Sie können gehen!',
 
-    player_id = 'Spieler ID: %s',
-    task_amount = 'Aufgabenzahl:',
+    -- UI Elements
+    command_help = 'Öffnet das Menü für gemeinnützige Arbeit',
+    menu_title = 'Gemeinnützige Arbeit',
+    give_comms = 'Gemeinnützige Arbeit zuweisen',
+    give_comms_desc = 'Einem Spieler gemeinnützige Arbeitsaufgaben zuweisen',
+    manage_comms = 'Gemeinnützige Arbeit verwalten',
+    manage_comms_desc = 'Spieler aus der gemeinnützigen Arbeit anzeigen und entfernen',
+    remove_comms = 'Gemeinnützige Arbeit entfernen',
+    remove_comms_content = 'Sind Sie sicher, dass Sie diesen Spieler aus der gemeinnützigen Arbeit entfernen möchten?',
+    admins_only = 'Diese Option ist nur für Administratoren.',
+    task_amount = 'Anzahl der Aufgaben',
+    click_to_remove = 'Klicken zum Entfernen',
+    task_help = 'Gehen Sie zum markierten Ort und graben Sie das Loch.',
+    dig_here = '[E] - Hier graben',
+    dig_progress = 'Graben...',
     refresh = 'Aktualisieren',
     go_back = 'Zurück',
-    click_to_remove = 'Verbleibende Aufgaben: %s (Klicken zum Entfernen)',
 
-    -- TextUI-Beschriftungen
-    dig_hole = 'Loch graben',
+    -- Webhook
+    comms_assigned = 'Gemeinnützige Arbeit zugewiesen',
+    comms_removed = 'Gemeinnützige Arbeit entfernt',
+    comms_completed = 'Gemeinnützige Arbeit abgeschlossen',
+    
+    player_id = 'Spieler ID',
+    username = 'Benutzername',
+    identifier = 'Identifikator',
+    assigner_id = 'Zuweiser ID',
+    tasks_assigned = 'Zugewiesene Aufgaben',
+    remover_id = 'Entferner ID',
 
-    -- Fortschrittsbalken
-    digging = 'Loch graben...',
-
-    -- Benachrichtigungen
-    permission_denied = 'Sie haben keine Berechtigung, diesen Befehl zu verwenden.',
-    restricted_area = 'Sie befinden sich in einem eingeschränkten Bereich, bitte verlassen Sie ihn sofort.',
-    player_not_found = 'Spieler-ID nicht online.',
-    unable_to_give = 'Konnte keinen Gemeinschaftsdienst vergeben.',
-    unable_to_remove = 'Konnte den Gemeinschaftsdienst nicht entfernen.',
-    silly_goose = 'Sie können sich selbst keinen Gemeinschaftsdienst zuweisen.',
-    not_finished = 'Sie haben Ihren Gemeinschaftsdienst nicht beendet.',
-
-    comms_given = 'Spieler ID: %s wurde(n) %s Aufgabe(n) zugewiesen.',
-    comms_removed = 'Der Gemeinschaftsdienst wurde entfernt.',
-
-    starting_comms = 'Ihnen wurden %s Aufgabe(n) im Rahmen des Gemeinschaftsdienstes zugewiesen.',
-    tasks_remaining = 'Verbleibende Aufgaben: %s',
-    finished_comms = 'Sie haben Ihren Gemeinschaftsdienst beendet.',
-
-    -- Discord Webhook
-    webhook_title = "%s: %s",
-    webhook_desc = "**Disziplinarist:** %s(%s)\n**Ziel:** %s(%s)\n**Aufgaben:** %s",
-
-    -- Server-Konsole
-    version = '%s | v%s',
-    framework = 'Framework: %s',
-    inventory = 'Inventar: %s',
-    target = 'Ziel: %s',
-    cheater = 'Spieler ID: %s ist ein verdächtiger Betrüger!'
-
+    -- Console
+    resource_version = '%s | v%s',
+    bridge_detected = '^2Bridge erkannt und geladen.^0',
+    bridge_not_detected = '^1Bridge nicht erkannt, stellen Sie sicher, dass es läuft.^0',
+    cheater_print = 'Sie haben versucht, das System zu überlisten. Das System hat Sie überlistet.',
+    debug_enabled = '^1Debug-Modus ist EIN! Führen Sie dies NICHT in der Produktion aus!^0',
 }

@@ -1,37 +1,70 @@
-Core = exports['r_bridge']:returnCoreObject()
+Core = exports.r_bridge:returnCoreObject()
+
+local resource = GetCurrentResourceName()
+local version = GetResourceMetadata(resource, 'version', 0)
+local bridgeStarted = GetResourceState('r_bridge') == 'started'
+
+DatabaseBuilt = false
 
 local function buildDatabase()
-    local builtTables = MySQL.query.await('SHOW TABLES LIKE "r_communityservice"')
-    if #builtTables == 0 then
-        local built = MySQL.query.await('CREATE TABLE `r_communityservice` ( `identifier` varchar(46) NOT NULL, `tasks` smallint(6) DEFAULT NULL, `items` longtext DEFAULT NULL, PRIMARY KEY (`identifier`) )')
-        if not built then return print('[^8ERROR^0] Failed to create database table r_communityservice') end
-        print('[^2SUCCESS^0] Created database table r_communityservice, this only happens once.')
-    end
+    local built = MySQL.query.await('SHOW TABLES LIKE "' .. resource .. '"')
+    if #built > 0 then DatabaseBuilt = true return end
+    built = MySQL.query.await([[
+    CREATE TABLE `]] .. resource .. [[` (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        identifier VARCHAR(64) NOT NULL,
+        tasks_remaining INT NOT NULL DEFAULT 0,
+        stored_items TEXT DEFAULT NULL,
+        UNIQUE KEY `idx_identifier` (`identifier`)
+        )
+    ]])
+    if not built then print('[^8ERROR^0] - Failed to create database table for ' .. resource) end
+    print('[^2SUCCESS^0] - Database table for ' .. resource .. ' created.')
+    DatabaseBuilt = true
 end
 
 local function checkResourceVersion()
     if not Cfg.Server.VersionCheck then return end
-    Core.VersionCheck(GetCurrentResourceName())
+    Core.VersionCheck(resource)
     SetTimeout(3600000, checkResourceVersion)
 end
 
-function _debug(...)
-    if Cfg.Debug then
-        print(...)
+AddEventHandler('onResourceStart', function(resourceName)
+    if resourceName ~= resource then return end
+    print('------------------------------')
+    print(_L('resource_version', resource, version))
+    if bridgeStarted then
+        print(_L('bridge_detected'))
+    else
+        print(_L('bridge_not_detected'))
     end
-end
-
-AddEventHandler('onResourceStart', function(resource)
-    if (resource == GetCurrentResourceName()) then
-        print('------------------------------')
-        print(_L('version', resource, GetResourceMetadata(resource, 'version', 0)))
-        if GetResourceState('r_bridge') ~= 'started' then
-            print('^1Bridge not detected, please ensure it is running.^0')
-        else
-            print('^2Bridge detected and loaded.^0')
-        end
-        print('------------------------------')
-        checkResourceVersion()
-        buildDatabase()
-    end
+    if Cfg.Debug then print(_L('debug_enabled')) end
+    print('------------------------------')
+    checkResourceVersion()
+    buildDatabase()
 end)
+
+function SendWebhook(src, event, fields)
+    if not Cfg.Options.WebhookEnabled then return end
+    local srcName = src > 0 and GetPlayerName(src) or 'Server'
+    PerformHttpRequest(Cfg.WebhookUrl, function()
+    end, 'POST', json.encode({
+        username = 'Resource Logs',
+        avatar_url = 'https://i.ibb.co/N62P014g/logo-2.jpg',
+        embeds = {
+            {
+                title = event,
+                color = 0x2C1B47,
+                image = { url = 'https://i.ibb.co/vVMnc6Y/wide.png' },
+                fields = {
+                    { name = _L('player_id'),  value = '`'..src..'`',     inline = true },
+                    { name = _L('username'),   value = '`'..srcName..'`', inline = true },
+                    { name = utf8.char(0x200B), value = utf8.char(0x200B), inline = true },
+                    table.unpack(fields or {})
+                },
+                footer = { text = GetCurrentResourceName() },
+                timestamp = os.date('!%Y-%m-%dT%H:%M:%S')
+            }
+        }
+    }), { ['Content-Type'] = 'application/json' })
+end

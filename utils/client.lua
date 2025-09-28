@@ -1,12 +1,9 @@
-Core = exports['r_bridge']:returnCoreObject()
+Core = exports.r_bridge:returnCoreObject()
 
-local onPlayerLoaded = Core.Info.Framework == 'ESX' and 'esx:playerLoaded' or 'QBCore:Client:OnPlayerLoaded'
+local framework = Core.Framework.Current
+
+local onPlayerLoaded = framework == 'es_extended' and 'esx:playerLoaded' or 'QBCore:Client:OnPlayerLoaded'
 RegisterNetEvent(onPlayerLoaded, function()
-    -- do things when players load
+    InitializeZone()
+    SetTimeout(1000, TriggerRelogCheck)
 end)
-
-function _debug(...)
-    if Cfg.Debug then
-        print(...)
-    end
-end

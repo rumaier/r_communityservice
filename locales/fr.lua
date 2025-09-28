@@ -1,52 +1,52 @@
 Language = Language or {}
 Language['fr'] = { -- French
 
-    -- Titres du Menu
-    comm_service = 'Service Communautaire',
-    give_comms = 'Donner un Service Communautaire',
-    give_comms_desc = 'Donner un service communautaire à un joueur.',
-    manage_comms = 'Gérer le Service Communautaire',
-    manage_comms_desc = 'Gérer le service communautaire d\'un joueur.',
-    remove_comms = 'Supprimer le Service Communautaire ?',
-    remove_comms_desc = 'Êtes-vous sûr de vouloir supprimer le service communautaire de ce joueur ?',
-
-    player_id = 'ID du Joueur : %s',
-    task_amount = 'Nombre de Tâches :',
-    refresh = 'Rafraîchir',
-    go_back = 'Retourner',
-    click_to_remove = 'Tâches Restantes : %s (Cliquez pour Supprimer)',
-
-    -- Étiquettes TextUI
-    dig_hole = 'Creuser un Trou',
-
-    -- Barres de Progression
-    digging = 'Creuser un Trou...',
-
     -- Notifications
-    permission_denied = 'Vous n\'avez pas la permission d\'utiliser cette commande.',
-    restricted_area = 'Vous êtes dans une zone restreinte, veuillez partir immédiatement.',
-    player_not_found = 'ID du joueur non en ligne.',
-    unable_to_give = 'Impossible de donner un service communautaire.',
-    unable_to_remove = 'Impossible de supprimer le service communautaire.',
-    silly_goose = 'Vous ne pouvez pas vous donner un service communautaire.',
-    not_finished = 'Vous n\'avez pas terminé votre service communautaire.',
+    noti_title = 'Service Communautaire',
+    restricted_area = 'Vous ne pouvez pas entrer dans cette zone.',
+    no_access = 'Vous n\'êtes pas autorisé à faire cela.',
+    no_self_assign = 'Vous ne pouvez pas vous assigner un service communautaire.',
+    player_not_found = 'Joueur ID %s introuvable.',
+    assigned_comms = 'Vous avez assigné %s tâches de service communautaire à %s.',
+    received_comms = 'On vous a assigné %s tâches de service communautaire.',
+    finish_comms = 'Vous devez terminer votre service communautaire avant de quitter la zone.',
+    task_complete = 'Tâche terminée! %s tâches restantes.',
+    comms_complete = 'Vous avez terminé votre service communautaire. Vous êtes libre de partir!',
 
-    comms_given = 'Le joueur avec l\'ID : %s a reçu %s tâche(s).',
-    comms_removed = 'Le service communautaire a été supprimé.',
+    -- UI Elements
+    command_help = 'Ouvrir le menu du service communautaire',
+    menu_title = 'Service Communautaire',
+    give_comms = 'Assigner Service Communautaire',
+    give_comms_desc = 'Assigner des tâches de service communautaire à un joueur',
+    manage_comms = 'Gérer Service Communautaire',
+    manage_comms_desc = 'Voir et retirer les joueurs du service communautaire',
+    remove_comms = 'Retirer Service Communautaire',
+    remove_comms_content = 'Êtes-vous sûr de vouloir retirer ce joueur du service communautaire?',
+    admins_only = 'Cette option est réservée aux administrateurs.',
+    task_amount = 'Nombre de Tâches',
+    click_to_remove = 'Cliquer pour retirer',
+    task_help = 'Allez à l\'endroit marqué et creusez le trou.',
+    dig_here = '[E] - Creuser Ici',
+    dig_progress = 'Creusage...',
+    refresh = 'Actualiser',
+    go_back = 'Retour',
 
-    starting_comms = 'Vous avez été assigné(e) %s tâche(s) de service communautaire.',
-    tasks_remaining = 'Tâches Restantes : %s',
-    finished_comms = 'Vous avez terminé votre service communautaire.',
+    -- Webhook
+    comms_assigned = 'Service Communautaire Assigné',
+    comms_removed = 'Service Communautaire Retiré',
+    comms_completed = 'Service Communautaire Terminé',
+    
+    player_id = 'ID du Joueur',
+    username = 'Nom d\'Utilisateur',
+    identifier = 'Identifiant',
+    assigner_id = 'ID de l\'Assigneur',
+    tasks_assigned = 'Tâches Assignées',
+    remover_id = 'ID du Retireur',
 
-    -- Webhook Discord
-    webhook_title = "%s : %s",
-    webhook_desc = "**Disciplinarian :** %s(%s)\n**Cible :** %s(%s)\n**Tâches :** %s",
-
-    -- Console du Serveur
-    version = '%s | v%s',
-    framework = 'Framework : %s',
-    inventory = 'Inventaire : %s',
-    target = 'Cible : %s',
-    cheater = 'Le joueur avec l\'ID : %s est un tricheur suspecté !'
-
+    -- Console
+    resource_version = '%s | v%s',
+    bridge_detected = '^2Bridge détecté et chargé.^0',
+    bridge_not_detected = '^1Bridge non détecté, assurez-vous qu\'il fonctionne.^0',
+    cheater_print = 'Vous avez essayé de duper le système. Le système vous a dupé.',
+    debug_enabled = '^1Le mode debug est ACTIVÉ! N\'exécutez PAS ceci en production!^0',
 }
