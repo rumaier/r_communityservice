@@ -1,11 +1,11 @@
-# [RESOURCE NAME]
+# r_communityservice
 
 ## Documentation
 
 For documentation and installation guides, please visit our Gitbook:  
-[Gitbook](LINK HERE)
+[Gitbook](https://rscripts.gitbook.io/r_scripts-docs./free-resources/r_communityservice)
 
 ## Support
 
 For support, bug reports, or feature requests, please join our Discord server:  
-[Discord](LINK HERE)
+[Discord](https://discord.gg/TR38cZFdQk)
