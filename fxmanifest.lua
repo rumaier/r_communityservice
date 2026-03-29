@@ -6,28 +6,30 @@ lua54 'yes'
 name 'r_communityservice'
 description 'A Simple Player Punishment Script'
 author 'rumaier'
-version '3.0.0'
+version '3.1.0'
 
 shared_scripts {
-  '@ox_lib/init.lua',
-  'utils/shared.lua',
-  'locales/*.lua',
-  'configs/*.lua'
+    '@ox_lib/init.lua',
+    'core/shared/*.lua',
+    'locales/*.lua',
+    'config.lua',
 }
 
 server_scripts {
-  '@oxmysql/lib/MySQL.lua',
-  'utils/server.lua',
-  'core/server/*.lua',
+    'core/server/*.lua',
 }
 
 client_scripts {
-  'utils/client.lua',
-  'core/client/*.lua',
+    'core/client/*.lua',
 }
 
 dependencies {
-  'ox_lib',
-  'r_bridge',
-  'oxmysql'
+    'r_bridge'
+}
+
+escrow_ignore {
+    'core/server/logging.lua',
+    'install/**/*.*',
+    'locales/*.*',
+    'config.lua'    
 }
