@@ -1,247 +1,217 @@
-local r_communityservice = GetCurrentResourceName()
-local zone = lib.zones.sphere({ coords = Cfg.ZoneCoords, radius = Cfg.ZoneRadius })
-local comms = {}
-local active = {}
+local RESOURCE_NAME = GetCurrentResourceName()
 
-local function saveTasks()
-    local path = 'core/server/tasks.json'
-    local data = json.encode(comms)
-    local saved = SaveResourceFile(r_communityservice, path, data, -1)
-    if not saved then
-        _error('Failed to save tasks to: ' .. path)
-    end
+local assignedTasks = {}
+local activePlayers = {}
+local taskZone = lib.zones.sphere({ coords = Cfg.ZoneCoords, radius = Cfg.ZoneRadius })
+
+local function logAssignment(src, target, tasks)
+    Log(src, 'assign_tasks', {
+        { name = locale('target_id'), value = '`' .. target .. '`', inline = true },
+        { name = locale('username'), value = '`' .. GetPlayerName(target) .. '`', inline = true },
+        { name = locale('tasks'), value = '`' .. tasks .. '`', inline = true },
+    })
 end
 
-local function cacheTasks()
-    local path = 'core/server/tasks.json'
-    local file = LoadResourceFile(r_communityservice, path)
-    if not file then
-        _error('Failed to load tasks from: ' .. path)
-    end
-    comms = file and json.decode(file) or {}
+local function logRemoval(src, target)
+    Log(src, 'remove_tasks', {
+        { name = locale('target_id'), value = '`' .. target .. '`', inline = true },
+        { name = locale('username'), value = '`' .. GetPlayerName(target) .. '`', inline = true },
+        { name = utf8.char(0x200B), value = utf8.char(0x200B), inline = true },
+    })
 end
 
-local function registerCommand()
-    local cmd = Cfg.Command
-    local type = type(cmd)
-    if not type == 'string' then
-        return _error('Cfg.Command must be a string, got ' .. type)
-    end
-    lib.addCommand(cmd, { help = locale('command_help') }, function(src)
-        TriggerClientEvent('r_communityservice:openMenu', src, active)
-    end)
+local function isPlayerNearCoords(src, coords)
+    local player = GetPlayerPed(src)
+    local playerCoords = GetEntityCoords(player)
+    return #(playerCoords - coords) < 5.0
 end
 
-local function getPermissionLevel(src)
-    local ace = IsPlayerAceAllowed(src, 'communityservice')
-    local job = Core.Framework.getPlayerJob(src)
-    if ace then
-        return 3
-    elseif lib.table.contains(Cfg.AllowedJobs, job.name) then
-        return 2
-    elseif active[src] then
-        return 1
-    else
-        return 0
-    end
+local function isPlayerJobAllowed(src)
+    local job = bridge.framework.getPlayerJob(src) or {}
+    if lib.table.contains(Cfg.AllowedJobs, job.name) then return true end
+    return false
 end
 
-lib.callback.register('r_communityservice:getPermissionLevel', function(src)
-    return getPermissionLevel(src)
+local function getAccessLevel(src)
+    if IsPlayerAceAllowed(src, 'r_communityservice') then return 3 end
+    if isPlayerJobAllowed(src) then return 2 end
+    if activePlayers[src] then return 1 end
+    return 0
+end
+
+lib.callback.register('r_communityservice:getAccessLevel', function(src)
+    return getAccessLevel(src)
 end)
 
-local function confiscateItems(src)
-    local items = Core.Inventory.getPlayerInventory(src)
-    for _, item in pairs(items) do
-        local removed = Core.Inventory.removeItem(src, item.name, item.count)
-        if not removed then
-            return _error('Failed to remove item ' .. item.name .. ' x' .. item.count .. ' from player ' .. src)
-        end
+lib.callback.register('r_communityservice:menuRequest', function(src)
+    if getAccessLevel(src) < 2 then
+        _debug('Player %s does not have access to the community service menu', src)
+        return false
     end
-    return items
-end
+    return true, activePlayers
+end)
 
 local function returnItems(src, items)
-    for _, item in pairs(items) do
-        local added = Core.Inventory.addItem(src, item.name, item.count, item.metadata)
-        if not added then
-            return _error('Failed to return item ' .. item.name .. ' x' .. item.count .. ' to player ' .. src)
+    for k, v in pairs(items) do
+        if not bridge.inventory.addItem(src, v.name, v.count, v.metadata or {}) then
+            print('^1[r_communityservice]^0 Failed to add item ' .. v.name .. ' to player ' .. src)
+            return false
         end
     end
     return true
 end
 
-local function isPlayerNearby(src, location)
-    local player = GetPlayerPed(src)
-    local coords = GetEntityCoords(player)
-    local dist = #(coords.xy - location.xy)
-    return dist <= 5.0
-end
-
-local function logAssignment(src, target, tasks)
-    SendLog(src, {
-        action = locale('log_assigned'),
-        fields = {
-            {
-                name = locale('target_id'),
-                value = '`' .. target .. '`',
-                inline = true
-            },
-            {
-                name = locale('username'),
-                value = '`' .. GetPlayerName(target) .. '`',
-                inline = true
-            },
-            {
-                name = locale('tasks'),
-                value = '`' .. tasks .. '`',
-                inline = true
-            },
-        }
-    })
-end
-
-local function logRemoval(src, target)
-    SendLog(src, {
-        action = locale('log_removed'),
-        fields = {
-            {
-                name = locale('target_id'),
-                value = '`' .. target .. '`',
-                inline = true
-            },
-            {
-                name = locale('username'),
-                value = '`' .. GetPlayerName(target) .. '`',
-                inline = true
-            },
-            {
-                name = utf8.char(0x200B),
-                value = utf8.char(0x200B),
-                inline = true
-            },
-        }
-    })
-end
-
-local function logFinished(src)
-    SendLog(src, {
-        action = locale('log_finished'),
-    })
+local function confiscateItems(src)
+    local inv = bridge.inventory.getInventory(src) or {}
+    for k, v in pairs(inv) do
+        if not bridge.inventory.removeItem(src, v.name, v.count) then
+            print('^1[r_communityservice]^0 Failed to remove item ' .. v.name .. ' from player ' .. src)
+            return false
+        end
+    end
+    return inv
 end
 
 local function releasePlayer(src, identifier)
-    local items = comms[identifier].items
-    if not returnItems(src, items) then return end
-    comms[identifier] = nil
-    active[src] = nil
+    if not returnItems(src, assignedTasks[identifier].items) then return end
+    assignedTasks[identifier] = nil
+    activePlayers[src] = nil
     TriggerClientEvent('r_communityservice:release', src)
 end
 
-local function getNextLocation(src)
-    local loc = zone.coords
-    local rad = zone.radius
-    local next = nil
+local function generateTaskCoords(src)
+    local coords = taskZone.coords
+    local radius = taskZone.radius
+    local task = nil
     repeat
-        next = vec3(loc.x + math.random(-rad, rad), loc.y + math.random(-rad, rad), loc.z)
+        local x = coords.x + math.random(-radius, radius)
+        local y = coords.y + math.random(-radius, radius)
+        task = vec3(x, y, coords.z)
         Wait(100)
-    until zone:contains(next)
-    active[src].current = next
-    return next
+    until taskZone:contains(task)
+    activePlayers[src].current = task
+    return task
 end
 
 lib.callback.register('r_communityservice:requestTask', function(src)
-    local assigned = active[src]
+    local assigned = activePlayers[src]
     if not assigned then
-        _error('Player ' .. src .. ' is not currently assigned to community service')
-        return false, true
+        print('^1[r_communityservice]^0 Player ' .. src .. ' is not assigned to any tasks')
+        return nil, nil, true
     end
-    local identifier = Core.Framework.getPlayerIdentifier(src)
     if assigned.current then
-        if not isPlayerNearby(src, assigned.current) then
-            _error('Player ' .. src .. ' is not near their last task location')
-            return false, true
+        if not isPlayerNearCoords(src, assigned.current) then
+            print('^1[r_communityservice]^0 Player ' .. src .. ' is not near their current task')
+            return nil, nil, true
         else
             assigned.tasks = assigned.tasks - 1
-            comms[identifier].tasks = assigned.tasks
         end
     end
     if assigned.tasks == 0 then
-        releasePlayer(src, identifier)
-        logFinished(src)
+        releasePlayer(src, assigned.identifier)
+        Log(src, 'tasks_finished', {})
         return
     end
-    return getNextLocation(src)
+    return generateTaskCoords(src), assigned.tasks
 end)
 
-lib.callback.register('r_communityservice:assignComms', function(src, target, tasks)
-    if src == target then
-        return false, 'no_self_assign'
+lib.callback.register('r_communityservice:assignTasks', function(src, target, tasks)
+    if src == target then return false, 'no_self_assign' end
+    if getAccessLevel(src) < 2 then
+        print('^1[r_communityservice]^0 Player ' .. src .. ' does not have access to assign tasks')
+        return false
     end
-    if getPermissionLevel(src) < 2 then
-        return _error('Player ' .. src .. ' does not have permission to assign comms')
-    end
-    local identifier = Core.Framework.getPlayerIdentifier(target)
+    if not GetPlayerName(target) then return false, 'player_not_found' end
+    local identifier = bridge.framework.getPlayerIdentifier(target)
     if not identifier then
-        return false, 'player_not_found'
+        print('^1[r_communityservice]^0 Player ' .. target .. ' identifier not found')
+        return false
     end
-    if comms[identifier] then
-        return false, 'player_already_assigned'
-    end
-    local items = confiscateItems(target)
-    comms[identifier] = { tasks = tasks, items = items }
-    active[target] = {
-        identifier = identifier,
-        name = GetPlayerName(target),
-        tasks = tasks
+    if assignedTasks[identifier] then return false, 'player_already_assigned' end
+    assignedTasks[identifier] = {
+        tasks = tasks,
+        items = confiscateItems(target),
     }
-    -- TODO: log    
+    activePlayers[target] = {
+        name = GetPlayerName(target),
+        identifier = identifier,
+        tasks = tasks,
+        current = nil,
+    }
     TriggerClientEvent('r_communityservice:sendToZone', target, tasks)
     logAssignment(src, target, tasks)
     return true
 end)
 
-lib.callback.register('r_communityservice:removeComms', function(src, target)
-    if getPermissionLevel(src) < 2 then
-        return _error('Player ' .. src .. ' does not have permission to remove comms')
+lib.callback.register('r_communityservice:removeTasks', function(src, target)
+    if src == target then return end
+    if getAccessLevel(src) < 2 then
+        print('^1[r_communityservice]^0 Player ' .. src .. ' does not have access to remove tasks')
+        return false
     end
-    local identifier = Core.Framework.getPlayerIdentifier(target)
-    if not identifier or not comms[identifier] then
-        return _error('Player ' .. target .. ' is offline or not currently assigned to community service')
+    if not activePlayers[target] then
+        return false, 'player_not_found'
+    end
+    local identifier = bridge.framework.getPlayerIdentifier(target)
+    if not identifier then
+        print('^1[r_communityservice]^0 Player ' .. target .. ' not found')
+        return false
     end
     releasePlayer(target, identifier)
     logRemoval(src, target)
     return true
 end)
 
-RegisterNetEvent('r_communityservice:relog', function()
-    local src = source
-    local identifier = Core.Framework.getPlayerIdentifier(src)
-    if not identifier or not comms[identifier] then return end
-    active[src] = {
+local function registerCommand()
+    lib.addCommand(Cfg.Command, {
+        help = locale('command_help'),
+    }, function(src)
+        TriggerClientEvent('r_communityservice:openMenu', src)
+    end)
+end
+
+local function cacheTasksToJson()
+    local saved = SaveResourceFile(RESOURCE_NAME, 'core/server/tasks.json', json.encode(assignedTasks, { indent = true}), -1)
+    if not saved then
+        print('^1[r_communityservice]^0 Failed to cache tasks to json')
+    end
+end
+
+local function fetchTasksFromJson()
+    local data = LoadResourceFile(RESOURCE_NAME, 'core/server/tasks.json')
+    if not data then
+        print('^1[r_communityservice]^0 Failed to fetch tasks from json')
+        return
+    end
+    assignedTasks = json.decode(data) or {}
+end
+
+RegisterNetEvent('r_communityservice:playerLoaded', function()
+    local identifier = bridge.framework.getPlayerIdentifier(source)
+    if not identifier or not assignedTasks[identifier] then return end
+    activePlayers[source] = {
+        name = GetPlayerName(source),
         identifier = identifier,
-        name = GetPlayerName(src),
-        tasks = comms[identifier].tasks,
+        tasks = assignedTasks[identifier].tasks,
         current = nil
     }
-    TriggerClientEvent('r_communityservice:sendToZone', src, comms[identifier].tasks)
+    TriggerClientEvent('r_communityservice:sendToZone', source, activePlayers[source].tasks)
 end)
 
 AddEventHandler('onResourceStart', function(resource)
-    if resource ~= r_communityservice then return end
+    if resource ~= GetCurrentResourceName() then return end
+    fetchTasksFromJson()
     registerCommand()
-    cacheTasks()
-end)
-
-AddEventHandler('txAdmin:events:serverShuttingDown', function()
-    saveTasks()
 end)
 
 AddEventHandler('playerDropped', function()
-    local src = source
-    if active[src] then
-        local identifier = Core.Framework.getPlayerIdentifier(src)
-        comms[identifier].tasks = active[src].tasks + 1
-        active[src] = nil
+    if activePlayers[source] then
+        local identifier = bridge.framework.getPlayerIdentifier(source)
+        assignedTasks[identifier].tasks = activePlayers[source].tasks + 1
+        activePlayers[source] = nil
     end
+end)
+
+AddEventHandler('txAdmin:events:serverShuttingDown', function()
+    cacheTasksToJson()
 end)

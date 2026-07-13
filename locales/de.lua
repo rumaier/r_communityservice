@@ -1,35 +1,7 @@
 Language = Language or {}
-Language['de'] = { -- German
+Language['de'] = {
     
-    command_help = 'Öffne das Community-Service-Menü',
-    community_service = 'Sozialdienst',
-    assign_comms = 'Sozialdienst zuweisen',
-    remove_comms = 'Sozialdienst entfernen',
-    remove_comms_desc = 'Bist du sicher, dass du den Sozialdienst von Spieler %s entfernen möchtest?',
-    no_active_players = 'Es gibt derzeit keine Spieler, die Sozialdienst leisten',
-    tasks = 'Aufgaben',
-    click_to_remove = 'Zum Entfernen klicken',
-    player_not_found = 'Spieler nicht gefunden',
-    no_self_assign = 'Du kannst dir selbst keinen Sozialdienst zuweisen',
-    player_already_assigned = 'Spieler ist bereits dem Sozialdienst zugeteilt',
-    comms_assigned = 'Du hast Spieler %s mit %s Aufgaben zum Sozialdienst zugewiesen',
-    comms_removed = 'Du hast den Sozialdienst von Spieler %s entfernt',
-    assigned_comms = 'Du wurdest zum Sozialdienst mit %s Aufgaben eingeteilt',
-    restricted_area = 'Du kannst diesen Bereich nicht betreten',
-    not_finished = 'Du hast deinen Sozialdienst noch nicht abgeschlossen',
-    dig_here = '[E] - Hier graben',
-    digging = 'Graben...',
-    task_complete = 'Aufgabe abgeschlossen, gehe zum nächsten Standort',
-    comms_complete = 'Sozialdienst abgeschlossen, kein Unsinn mehr!',
-
-    log_assigned = 'Sozialdienst zugewiesen',
-    log_removed = 'Sozialdienst entfernt',
-    log_finished = 'Sozialdienst abgeschlossen',
-
-    server_id = 'Server-ID',
-    target_id = 'Ziel-ID',
-    username = 'Benutzername',
-    identifier = 'Identifikator',
-    startup_info = '%s | v%s',
-    debug_enabled = '^3DEBUG-MODUS IST AKTIVIERT^0',
+    bridge_loaded = 'Bridge erfolgreich geladen.',
+    update_bridge = 'Bitte aktualisiere r_bridge auf v3.0.0 oder höher!',
+    debug_enabled = 'Debug-Modus ist AN! Verwende dies NICHT in der Produktion!',
 }

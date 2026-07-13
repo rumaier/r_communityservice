@@ -18,8 +18,8 @@ Cfg.AllowedJobs = {              -- List of jobs that can use the menu
     'police',
     -- 'sheriff'
 }
--- To allow server admins, add the ACE permission to your server.cfg:
--- add_ace group.admin command.communityservice allow
+-- To allow server staff, add the ACE permission to your server.cfg:
+-- add_ace group.admin "r_communityservice" allow
 
 Cfg.ZoneCoords = vec3(1496.70, 2409.15, 48.24) -- Coordinates for the community service zone (vector3)
 Cfg.ZoneRadius = 50.0                          -- Radius of the community service zone (float)

@@ -1,35 +1,7 @@
 Language = Language or {}
-Language['zh'] = { -- Simplified Chinese
+Language['zh'] = {
     
-    command_help = '打开社区服务菜单',
-    community_service = '社区服务',
-    assign_comms = '分配社区服务',
-    remove_comms = '移除社区服务',
-    remove_comms_desc = '您确定要移除玩家 %s 的社区服务吗？',
-    no_active_players = '目前没有玩家在执行社区服务',
-    tasks = '任务',
-    click_to_remove = '点击移除',
-    player_not_found = '未找到玩家',
-    no_self_assign = '您不能给自己分配社区服务',
-    player_already_assigned = '该玩家已被分配社区服务',
-    comms_assigned = '您已为玩家 %s 分配了 %s 项社区服务任务',
-    comms_removed = '您已移除玩家 %s 的社区服务',
-    assigned_comms = '您已被分配执行 %s 项社区服务任务',
-    restricted_area = '您无法进入此区域',
-    not_finished = '您尚未完成社区服务',
-    dig_here = '[E] - 在此挖掘',
-    digging = '挖掘中...',
-    task_complete = '任务完成，前往下一个地点',
-    comms_complete = '社区服务完成，不要再胡闹了！',
-
-    log_assigned = '已分配服务',
-    log_removed = '已移除服务',
-    log_finished = '服务已完成',
-
-    server_id = '服务器 ID',
-    target_id = '目标 ID',
-    username = '用户名',
-    identifier = '标识符',
-    startup_info = '%s | v%s',
-    debug_enabled = '^3调试模式已启用^0',
+    bridge_loaded = '桥接加载成功。',
+    update_bridge = '请将 r_bridge 更新到 v3.0.0 或更高版本！',
+    debug_enabled = '调试模式已开启！请勿在生产环境中使用！',
 }

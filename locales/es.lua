@@ -1,35 +1,7 @@
 Language = Language or {}
-Language['es'] = { -- Spanish
-
-    command_help = 'Abrir el menú de servicio comunitario',
-    community_service = 'Servicio Comunitario',
-    assign_comms = 'Asignar Servicio Comunitario',
-    remove_comms = 'Eliminar Servicio Comunitario',
-    remove_comms_desc = '¿Estás seguro de que quieres eliminar el servicio comunitario del jugador %s?',
-    no_active_players = 'No hay jugadores realizando servicio comunitario actualmente',
-    tasks = 'Tareas',
-    click_to_remove = 'Clic para eliminar',
-    player_not_found = 'Jugador no encontrado',
-    no_self_assign = 'No puedes asignarte servicio comunitario a ti mismo',
-    player_already_assigned = 'El jugador ya está asignado al servicio comunitario',
-    comms_assigned = 'Asignaste servicio comunitario al jugador %s con %s tareas',
-    comms_removed = 'Eliminaste el servicio comunitario del jugador %s',
-    assigned_comms = 'Has sido asignado para realizar servicio comunitario con %s tareas',
-    restricted_area = 'No puedes entrar a esta área',
-    not_finished = 'Aún no has terminado tu servicio comunitario',
-    dig_here = '[E] - Cavar aquí',
-    digging = 'Cavando...',
-    task_complete = 'Tarea completada, muévete a la siguiente ubicación',
-    comms_complete = '¡Servicio comunitario completo, sin más travesuras!',
-
-    log_assigned = 'Servicio Asignado',
-    log_removed = 'Servicio Eliminado',
-    log_finished = 'Servicio Finalizado',
-
-    server_id = 'ID del Servidor',
-    target_id = 'ID del Objetivo',
-    username = 'Nombre de Usuario',
-    identifier = 'Identificador',
-    startup_info = '%s | v%s',
-    debug_enabled = '^3MODO DEBUG ESTÁ ACTIVADO^0',
+Language['es'] = {
+    
+    bridge_loaded = 'Bridge cargado correctamente.',
+    update_bridge = '¡Por favor, actualiza r_bridge a v3.0.0 o superior!',
+    debug_enabled = '¡El modo de depuración está ACTIVADO! ¡NO lo uses en producción!',
 }

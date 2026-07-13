@@ -1,35 +1,7 @@
 Language = Language or {}
-Language['fr'] = { -- French
-
-    command_help = 'Ouvrir le menu des travaux d\'intérêt général',
-    community_service = 'Travaux d\'Intérêt Général',
-    assign_comms = 'Assigner des Travaux d\'Intérêt Général',
-    remove_comms = 'Retirer les Travaux d\'Intérêt Général',
-    remove_comms_desc = 'Êtes-vous sûr de vouloir retirer les travaux d\'intérêt général du joueur %s ?',
-    no_active_players = 'Aucun joueur n\'effectue actuellement des travaux d\'intérêt général',
-    tasks = 'Tâches',
-    click_to_remove = 'Cliquer pour retirer',
-    player_not_found = 'Joueur introuvable',
-    no_self_assign = 'Vous ne pouvez pas vous assigner des travaux d\'intérêt général',
-    player_already_assigned = 'Le joueur est déjà assigné aux travaux d\'intérêt général',
-    comms_assigned = 'Vous avez assigné des travaux d\'intérêt général au joueur %s avec %s tâches',
-    comms_removed = 'Vous avez retiré les travaux d\'intérêt général du joueur %s',
-    assigned_comms = 'Vous avez été assigné pour effectuer des travaux d\'intérêt général avec %s tâches',
-    restricted_area = 'Vous ne pouvez pas entrer dans cette zone',
-    not_finished = 'Vous n\'avez pas encore terminé vos travaux d\'intérêt général',
-    dig_here = '[E] - Creuser ici',
-    digging = 'En train de creuser...',
-    task_complete = 'Tâche terminée, rendez-vous au prochain emplacement',
-    comms_complete = 'Travaux d\'intérêt général terminés, plus de bêtises !',
-
-    log_assigned = 'TIG Assignés',
-    log_removed = 'TIG Retirés',
-    log_finished = 'TIG Terminés',
-
-    server_id = 'ID du Serveur',
-    target_id = 'ID Cible',
-    username = 'Nom d\'Utilisateur',
-    identifier = 'Identifiant',
-    startup_info = '%s | v%s',
-    debug_enabled = '^3MODE DEBUG EST ACTIVÉ^0',
+Language['fr'] = {
+    
+    bridge_loaded = 'Bridge chargé avec succès.',
+    update_bridge = 'Veuillez mettre à jour r_bridge vers v3.0.0 ou supérieur !',
+    debug_enabled = 'Le mode débogage est ACTIVÉ ! Ne l\'utilisez PAS en production !',
 }
