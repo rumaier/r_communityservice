@@ -4,7 +4,7 @@ game 'gta5'
 lua54 'yes'
 
 name 'r_communityservice'
-description 'A Simple Player Punishment Script'
+description 'A Simple Player Punishment Script for FiveM'
 author 'rumaier'
 version '3.2.0'
 
