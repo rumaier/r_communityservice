@@ -1,7 +1,7 @@
 ## Documentation
 
 For documentation and installation guides, please visit our Gitbook:  
-[Gitbook](https://rscripts.gitbook.io/r_scripts-docs.)
+[Gitbook](https://rscripts.gitbook.io/r_scripts-docs./free-resources/r_communityservice)
 
 ## Support
 
