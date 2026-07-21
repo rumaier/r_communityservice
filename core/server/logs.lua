@@ -14,13 +14,13 @@ function Log(src, action, fields)
     PerformHttpRequest(webhookUrl, function()
     end, 'POST', json.encode({
         username = GetCurrentResourceName(),
-        avatar_url = 'https://i.ibb.co/N62P014g/logo-2.jpg',
+        avatar_url = 'https://cdn.rscripts.store/brand-assets/logo.png',
         embeds = {
             {
                 title = locale(action),
                 color = 0x2C1B47,
                 image = {
-                    url = 'https://i.ibb.co/vVMnc6Y/wide.png'
+                    url = 'https://cdn.rscripts.store/brand-assets/banner.png'
                 },
                 fields = {
                     { name = locale('server_id'), value = '`' .. src .. '`',      inline = true },
