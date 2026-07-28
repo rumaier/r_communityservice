@@ -1,4 +1,4 @@
-local RESOURCE_NAME = GetCurrentResourceName()
+﻿local RESOURCE_NAME = GetCurrentResourceName()
 local TASKS_FILE = 'core/server/tasks.json'
 local TASK_COMPLETE_DISTANCE = 1.5
 local REQUEST_COOLDOWN_MS = 500
