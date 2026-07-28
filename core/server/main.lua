@@ -1,4 +1,4 @@
-local RESOURCE_NAME = GetCurrentResourceName()
+﻿local RESOURCE_NAME = GetCurrentResourceName()
 local TASKS_FILE = 'core/server/tasks.json'
 local TASK_COMPLETE_DISTANCE = 1.5
 local REQUEST_COOLDOWN_MS = 500
@@ -10,10 +10,6 @@ local RESTORE_COOLDOWN_MS = 2000
 local assignedTasks = {}
 local activePlayers = {}
 local cooldowns = {}
-
-local function warn(src, message)
-    print(('^1[r_communityservice]^0 Player %s %s'):format(src, message))
-end
 
 local function cooldownKey(src, action)
     return ('%s:%s'):format(src, action)
@@ -41,7 +37,7 @@ end
 local function cacheTasksToJson()
     local encodedSuccessfully, encoded = pcall(json.encode, assignedTasks, { indent = true })
     if not encodedSuccessfully then
-        print('^1[r_communityservice]^0 Failed to encode tasks json: ' .. tostring(encoded))
+        log('error', 'Failed to encode tasks json: ' .. tostring(encoded))
         return false
     end
     local saved = SaveResourceFile(
@@ -51,7 +47,7 @@ local function cacheTasksToJson()
         -1
     )
     if not saved then
-        print('^1[r_communityservice]^0 Failed to cache tasks to json')
+        log('error', 'Failed to cache tasks to json')
     end
     return saved
 end
@@ -65,7 +61,7 @@ local function fetchTasksFromJson()
 
     local success, decoded = pcall(json.decode, data)
     if not success or type(decoded) ~= 'table' then
-        print('^1[r_communityservice]^0 Failed to decode tasks json; starting with an empty cache')
+        log('error', 'Failed to decode tasks json; starting with an empty cache')
         assignedTasks = {}
         return
     end
@@ -73,12 +69,12 @@ local function fetchTasksFromJson()
     assignedTasks = decoded
     for identifier, record in pairs(assignedTasks) do
         if type(record) ~= 'table' or type(record.tasks) ~= 'number' then
-            print(('^1[r_communityservice]^0 Removed invalid cached assignment for %s'):format(identifier))
+            log('warn', ('Removed invalid cached assignment for %s'):format(identifier))
             assignedTasks[identifier] = nil
         else
             record.tasks = math.max(0, math.floor(record.tasks))
             if type(record.items) ~= 'table' then
-                print(('^1[r_communityservice]^0 Invalid custody data for %s; preserving sentence with empty custody'):format(identifier))
+                log('warn', ('Invalid custody data for %s; preserving sentence with empty custody'):format(identifier))
                 record.items = {}
             end
         end
@@ -151,7 +147,7 @@ local function rollbackItems(src, items)
         local item = items[i]
         if not bridge.inventory.addItem(src, item.name, item.count, item.metadata) then
             rollbackSucceeded = false
-            print(('^1[r_communityservice]^0 CRITICAL: failed to return %sx %s while rolling back player %s'):format(
+            log('error', ('failed to return %sx %s while rolling back player %s'):format(
                 item.count,
                 item.name,
                 src
@@ -169,7 +165,7 @@ local function removeRestoredItems(src, items)
             for j = #removed, 1, -1 do
                 local rollback = removed[j]
                 if not bridge.inventory.addItem(src, rollback.name, rollback.count, rollback.metadata) then
-                    print(('^1[r_communityservice]^0 CRITICAL: failed to roll back removed %sx %s for player %s'):format(
+                    log('error', ('failed to roll back removed %sx %s for player %s'):format(
                         rollback.count,
                         rollback.name,
                         src
@@ -195,7 +191,7 @@ local function confiscateItems(src)
                 slot = item.slot,
             }
             if not bridge.inventory.removeItem(src, item.name, item.count, item.metadata, item.slot) then
-                warn(src, 'could not have their inventory confiscated')
+                log('warn', ('Player %s %s'):format(src, 'could not have their inventory confiscated'))
                 rollbackItems(src, removed)
                 return nil, 'confiscate_failed'
             end
@@ -234,7 +230,7 @@ local function restoreCustody(src, items)
             for j = #restored, 1, -1 do
                 local rollback = restored[j]
                 if not bridge.inventory.removeItem(src, rollback.name, rollback.count, rollback.metadata) then
-                    print(('^1[r_communityservice]^0 CRITICAL: failed to roll back restored %sx %s for player %s'):format(
+                    log('error', ('failed to roll back restored %sx %s for player %s'):format(
                         rollback.count,
                         rollback.name,
                         src
@@ -264,7 +260,7 @@ local function releasePlayer(src, identifier)
         assignedTasks[identifier] = assignment
         activePlayers[src] = runtime
         if #custody > 0 and not removeRestoredItems(src, custody) then
-            print(('^1[r_communityservice]^0 CRITICAL: failed to roll back custody for %s after save failure'):format(identifier))
+            log('error', ('failed to roll back custody for %s after save failure'):format(identifier))
         end
         return false, 'persistence_failed'
     end
@@ -330,7 +326,7 @@ lib.callback.register('r_communityservice:menuRequest', function(src)
     if isOnCooldown(src, 'menu', STAFF_COOLDOWN_MS) then return false end
     setCooldown(src, 'menu')
     if getAccessLevel(src) < 2 then
-        warn(src, 'attempted to open the staff menu without access')
+        log('warn', ('Player %s %s'):format(src, 'attempted to open the staff menu without access'))
         return false
     end
     return true, getStaffRoster()
@@ -343,11 +339,11 @@ lib.callback.register('r_communityservice:requestTask', function(src)
     local runtime = activePlayers[src]
     local assignment = runtime and assignedTasks[runtime.identifier]
     if not runtime or not assignment then
-        warn(src, 'requested a task without an active sentence')
+        log('warn', ('Player %s %s'):format(src, 'requested a task without an active sentence'))
         return false
     end
     if not isPlayerInsideZone(src) then
-        warn(src, 'requested a task outside the service zone')
+        log('warn', ('Player %s %s'):format(src, 'requested a task outside the service zone'))
         return false
     end
     if assignment.tasks <= 0 then
@@ -370,11 +366,11 @@ lib.callback.register('r_communityservice:startTask', function(src)
     local runtime = activePlayers[src]
     local assignment = runtime and assignedTasks[runtime.identifier]
     if not runtime or not assignment or not runtime.current then
-        warn(src, 'attempted to start a task without an issued task')
+        log('warn', ('Player %s %s'):format(src, 'attempted to start a task without an issued task'))
         return false
     end
     if not isPlayerInsideZone(src) or not isPlayerNearTask(src, runtime.current) then
-        warn(src, 'attempted to start a task away from its marker')
+        log('warn', ('Player %s %s'):format(src, 'attempted to start a task away from its marker'))
         return false
     end
 
@@ -389,19 +385,19 @@ lib.callback.register('r_communityservice:completeTask', function(src)
     local runtime = activePlayers[src]
     local assignment = runtime and assignedTasks[runtime.identifier]
     if not runtime or not assignment or not runtime.current or not runtime.startedAt then
-        warn(src, 'attempted to complete a task without an issued task')
+        log('warn', ('Player %s %s'):format(src, 'attempted to complete a task without an issued task'))
         return false
     end
     if not isPlayerInsideZone(src) then
-        warn(src, 'attempted to complete a task outside the service zone')
+        log('warn', ('Player %s %s'):format(src, 'attempted to complete a task outside the service zone'))
         return false
     end
     if not isPlayerNearTask(src, runtime.current) then
-        warn(src, 'attempted to complete a task away from its marker')
+        log('warn', ('Player %s %s'):format(src, 'attempted to complete a task away from its marker'))
         return false
     end
     if GetGameTimer() - runtime.startedAt < Cfg.TaskTime * 1000 then
-        warn(src, 'attempted to complete a task before the required duration')
+        log('warn', ('Player %s %s'):format(src, 'attempted to complete a task before the required duration'))
         return false
     end
 
@@ -426,12 +422,12 @@ lib.callback.register('r_communityservice:assignTasks', function(src, target, ta
     if isOnCooldown(src, 'staff', STAFF_COOLDOWN_MS) then return false end
     setCooldown(src, 'staff')
     if getAccessLevel(src) < 2 then
-        warn(src, 'attempted to assign tasks without access')
+        log('warn', ('Player %s %s'):format(src, 'attempted to assign tasks without access'))
         return false
     end
 
     if not isInteger(target, 1, 65535) or not isInteger(tasks, 1, Cfg.MaxTasks) then
-        warn(src, 'submitted an invalid task assignment')
+        log('warn', ('Player %s %s'):format(src, 'submitted an invalid task assignment'))
         return false
     end
     if src == target then return false, 'no_self_assign' end
@@ -439,7 +435,7 @@ lib.callback.register('r_communityservice:assignTasks', function(src, target, ta
 
     local identifier = bridge.framework.getPlayerIdentifier(target)
     if not identifier then
-        warn(src, ('could not resolve target %s identifier'):format(target))
+        log('warn', ('Player %s %s'):format(src, ('could not resolve target %s identifier'):format(target)))
         return false
     end
     if assignedTasks[identifier] then return false, 'player_already_assigned' end
@@ -462,7 +458,7 @@ lib.callback.register('r_communityservice:assignTasks', function(src, target, ta
         assignedTasks[identifier] = nil
         activePlayers[target] = nil
         if not rollbackItems(target, items) then
-            print(('^1[r_communityservice]^0 CRITICAL: failed to roll back custody for %s after save failure'):format(identifier))
+            log('error', ('failed to roll back custody for %s after save failure'):format(identifier))
         end
         return false, 'persistence_failed'
     end
@@ -477,12 +473,12 @@ lib.callback.register('r_communityservice:removeTasks', function(src, target)
     if isOnCooldown(src, 'staff', STAFF_COOLDOWN_MS) then return false end
     setCooldown(src, 'staff')
     if getAccessLevel(src) < 2 then
-        warn(src, 'attempted to remove tasks without access')
+        log('warn', ('Player %s %s'):format(src, 'attempted to remove tasks without access'))
         return false
     end
 
     if not isInteger(target, 1, 65535) then
-        warn(src, 'submitted an invalid task removal target')
+        log('warn', ('Player %s %s'):format(src, 'submitted an invalid task removal target'))
         return false
     end
     if src == target then return false, 'no_self_remove' end
