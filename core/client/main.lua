@@ -171,18 +171,8 @@ local function startTasks()
                     currentTask.z + 50.0,
                     false
                 )
-
-                DrawMarker(
-                    2,
-                    currentTask.x,
-                    currentTask.y,
-                    (foundGround and groundZ or currentTask.z) + 2.5,
-                    0, 0, 0,
-                    0, 180.0, 0,
-                    0.8, 0.8, 0.8,
-                    255, 55, 55, 200,
-                    true, true, 2, false, nil, nil, false
-                )
+                ---@diagnostic disable-next-line: param-type-mismatch
+                DrawMarker( 2, currentTask.x, currentTask.y, (foundGround and groundZ or currentTask.z) + 2.5, 0, 0, 0, 0, 180.0, 0, 0.8, 0.8, 0.8, 255, 55, 55, 200, true, true, 2, false, nil, nil, false)
 
                 if distance > 1.0 then
                     bridge.interface.showHelpText(locale('move_to_task'), -1)
@@ -263,7 +253,7 @@ local function initTaskZone()
         onEnter = onZoneEnter,
         onExit = onZoneExit,
     })
-    _debug('Task zone initialized at: ' .. taskZone.coords)
+    log('debug','Task zone initialized at: ' .. taskZone.coords)
 end
 
 RegisterNetEvent('r_communityservice:sendToZone', function(tasks)
