@@ -278,22 +278,26 @@ RegisterNetEvent('r_communityservice:sendToZone', function(tasks)
 end)
 
 local function initialize()
-    if clientInitialized then return end
+    if clientInitialized or not Cfg.ZoneCoords or not Cfg.ZoneRadius then return end
     clientInitialized = true
     initTaskZone()
     TriggerServerEvent('r_communityservice:playerLoaded')
 end
 
-AddEventHandler('r_bridge:playerLoaded', function()
+local function tryInitialize()
+    if not bridge.framework.isPlayerLoaded() then return end
     initialize()
-end)
+end
+
+AddEventHandler('r_bridge:playerLoaded', tryInitialize)
+AddEventHandler('r_communityservice:clientConfigLoaded', tryInitialize)
 
 AddEventHandler('onClientResourceStart', function(resource)
-    if resource ~= GetCurrentResourceName() or not bridge.framework.isPlayerLoaded() then return end
-    initialize()
+    if resource ~= GetCurrentResourceName() then return end
+    tryInitialize()
 end)
 
-AddEventHandler('onClientResourceStop', function(resource)
+AddEventHandler('onResourceStop', function(resource)
     if resource ~= GetCurrentResourceName() then return end
     stopTasks()
     if taskZone then
