@@ -9,20 +9,6 @@ local RESTORE_COOLDOWN_MS = 2000
 
 local assignedTasks = {}
 local activePlayers = {}
-local cooldowns = {}
-
-local function cooldownKey(src, action)
-    return ('%s:%s'):format(src, action)
-end
-
-local function isOnCooldown(src, action, duration)
-    local last = cooldowns[cooldownKey(src, action)]
-    return last and GetGameTimer() - last < duration
-end
-
-local function setCooldown(src, action)
-    cooldowns[cooldownKey(src, action)] = GetGameTimer()
-end
 
 local function isInteger(value, minimum, maximum)
     return type(value) == 'number'
@@ -302,7 +288,7 @@ local function hydratePlayer(src)
         current = nil,
         startedAt = nil,
     }
-    setCooldown(src, 'loaded')
+    SetCooldown(src, 'loaded')
     sendToZone(src, assignment.tasks)
     return true
 end
@@ -323,8 +309,8 @@ lib.callback.register('r_communityservice:getAccessLevel', function(src)
 end)
 
 lib.callback.register('r_communityservice:menuRequest', function(src)
-    if isOnCooldown(src, 'menu', STAFF_COOLDOWN_MS) then return false end
-    setCooldown(src, 'menu')
+    if IsOnCooldown(src, 'menu', STAFF_COOLDOWN_MS) then return false end
+    SetCooldown(src, 'menu')
     if getAccessLevel(src) < 2 then
         log('warn', ('Player %s %s'):format(src, 'attempted to open the staff menu without access'))
         return false
@@ -333,8 +319,8 @@ lib.callback.register('r_communityservice:menuRequest', function(src)
 end)
 
 lib.callback.register('r_communityservice:requestTask', function(src)
-    if isOnCooldown(src, 'request', REQUEST_COOLDOWN_MS) then return false end
-    setCooldown(src, 'request')
+    if IsOnCooldown(src, 'request', REQUEST_COOLDOWN_MS) then return false end
+    SetCooldown(src, 'request')
 
     local runtime = activePlayers[src]
     local assignment = runtime and assignedTasks[runtime.identifier]
@@ -360,8 +346,8 @@ lib.callback.register('r_communityservice:requestTask', function(src)
 end)
 
 lib.callback.register('r_communityservice:startTask', function(src)
-    if isOnCooldown(src, 'start', START_COOLDOWN_MS) then return false end
-    setCooldown(src, 'start')
+    if IsOnCooldown(src, 'start', START_COOLDOWN_MS) then return false end
+    SetCooldown(src, 'start')
 
     local runtime = activePlayers[src]
     local assignment = runtime and assignedTasks[runtime.identifier]
@@ -379,8 +365,8 @@ lib.callback.register('r_communityservice:startTask', function(src)
 end)
 
 lib.callback.register('r_communityservice:completeTask', function(src)
-    if isOnCooldown(src, 'complete', COMPLETE_COOLDOWN_MS) then return false end
-    setCooldown(src, 'complete')
+    if IsOnCooldown(src, 'complete', COMPLETE_COOLDOWN_MS) then return false end
+    SetCooldown(src, 'complete')
 
     local runtime = activePlayers[src]
     local assignment = runtime and assignedTasks[runtime.identifier]
@@ -419,8 +405,8 @@ lib.callback.register('r_communityservice:completeTask', function(src)
 end)
 
 lib.callback.register('r_communityservice:assignTasks', function(src, target, tasks)
-    if isOnCooldown(src, 'staff', STAFF_COOLDOWN_MS) then return false end
-    setCooldown(src, 'staff')
+    if IsOnCooldown(src, 'staff', STAFF_COOLDOWN_MS) then return false end
+    SetCooldown(src, 'staff')
     if getAccessLevel(src) < 2 then
         log('warn', ('Player %s %s'):format(src, 'attempted to assign tasks without access'))
         return false
@@ -463,15 +449,15 @@ lib.callback.register('r_communityservice:assignTasks', function(src, target, ta
         return false, 'persistence_failed'
     end
 
-    setCooldown(target, 'loaded')
+    SetCooldown(target, 'loaded')
     sendToZone(target, tasks)
     logAssignment(src, target, tasks)
     return true
 end)
 
 lib.callback.register('r_communityservice:removeTasks', function(src, target)
-    if isOnCooldown(src, 'staff', STAFF_COOLDOWN_MS) then return false end
-    setCooldown(src, 'staff')
+    if IsOnCooldown(src, 'staff', STAFF_COOLDOWN_MS) then return false end
+    SetCooldown(src, 'staff')
     if getAccessLevel(src) < 2 then
         log('warn', ('Player %s %s'):format(src, 'attempted to remove tasks without access'))
         return false
@@ -512,18 +498,18 @@ end
 RegisterNetEvent('r_communityservice:playerLoaded', function()
     local src = source
     if activePlayers[src] then return end
-    if isOnCooldown(src, 'loaded', RESTORE_COOLDOWN_MS) then return end
-    setCooldown(src, 'loaded')
+    if IsOnCooldown(src, 'loaded', RESTORE_COOLDOWN_MS) then return end
+    SetCooldown(src, 'loaded')
     hydratePlayer(src)
 end)
 
 RegisterNetEvent('r_communityservice:resyncService', function()
     local src = source
-    if isOnCooldown(src, 'loaded', RESTORE_COOLDOWN_MS) then return end
+    if IsOnCooldown(src, 'loaded', RESTORE_COOLDOWN_MS) then return end
     local runtime = activePlayers[src]
     local assignment = runtime and assignedTasks[runtime.identifier]
     if not assignment then return end
-    setCooldown(src, 'loaded')
+    SetCooldown(src, 'loaded')
     sendToZone(src, assignment.tasks)
 end)
 
@@ -541,14 +527,7 @@ AddEventHandler('onResourceStart', function(resource)
 end)
 
 AddEventHandler('playerDropped', function()
-    local src = source
-    activePlayers[src] = nil
-    cooldowns[cooldownKey(src, 'request')] = nil
-    cooldowns[cooldownKey(src, 'start')] = nil
-    cooldowns[cooldownKey(src, 'complete')] = nil
-    cooldowns[cooldownKey(src, 'staff')] = nil
-    cooldowns[cooldownKey(src, 'menu')] = nil
-    cooldowns[cooldownKey(src, 'loaded')] = nil
+    activePlayers[source] = nil
 end)
 
 AddEventHandler('onResourceStop', function(resource)
