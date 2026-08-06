@@ -127,6 +127,65 @@ local function getStaffRoster()
     return roster
 end
 
+local function cloneItemMetadata(metadata)
+    if type(metadata) ~= 'table' then return metadata end
+    return lib.table.deepclone(metadata)
+end
+
+local function metadataMatches(left, right)
+    local a = type(left) == 'table' and left or {}
+    local b = type(right) == 'table' and right or {}
+    return lib.table.matches(a, b)
+end
+
+local function removeInventoryItem(src, item)
+    if item.slot ~= nil then
+        return bridge.inventory.removeItem(src, item.name, item.count, nil, item.slot)
+    end
+    return bridge.inventory.removeItem(src, item.name, item.count, item.metadata)
+end
+
+local function snapshotInventoryItems(src)
+    local inventory = bridge.inventory.getInventory(src) or {}
+    local snapshot = {}
+    for _, item in pairs(inventory) do
+        if type(item) == 'table' and item.name and item.count and item.count > 0 then
+            snapshot[#snapshot + 1] = {
+                name = item.name,
+                count = item.count,
+                metadata = cloneItemMetadata(item.metadata),
+                slot = item.slot,
+            }
+        end
+    end
+    return snapshot
+end
+
+--- Resolve a live slot after addItem (custody slots are stale post-restore).
+local function resolveRemovableItem(src, item)
+    local inventory = bridge.inventory.getInventory(src) or {}
+    for _, invItem in pairs(inventory) do
+        if type(invItem) == 'table'
+            and invItem.name == item.name
+            and type(invItem.count) == 'number'
+            and invItem.count >= item.count
+            and metadataMatches(invItem.metadata, item.metadata)
+        then
+            return {
+                name = invItem.name,
+                count = item.count,
+                metadata = cloneItemMetadata(invItem.metadata),
+                slot = invItem.slot,
+            }
+        end
+    end
+    return {
+        name = item.name,
+        count = item.count,
+        metadata = item.metadata,
+    }
+end
+
 local function rollbackItems(src, items)
     local rollbackSucceeded = true
     for i = #items, 1, -1 do
@@ -146,8 +205,14 @@ end
 local function removeRestoredItems(src, items)
     local removed = {}
     for i = 1, #items do
-        local item = items[i]
-        if not bridge.inventory.removeItem(src, item.name, item.count, item.metadata, item.slot) then
+        local item = resolveRemovableItem(src, items[i])
+        if not removeInventoryItem(src, item) then
+            log('error', ('failed to re-secure %sx %s (slot %s) for player %s'):format(
+                item.count,
+                item.name,
+                tostring(item.slot),
+                src
+            ))
             for j = #removed, 1, -1 do
                 local rollback = removed[j]
                 if not bridge.inventory.addItem(src, rollback.name, rollback.count, rollback.metadata) then
@@ -166,23 +231,21 @@ local function removeRestoredItems(src, items)
 end
 
 local function confiscateItems(src)
-    local inventory = bridge.inventory.getInventory(src) or {}
+    local pending = snapshotInventoryItems(src)
     local removed = {}
-    for _, item in pairs(inventory) do
-        if item.name and item.count and item.count > 0 then
-            local heldItem = {
-                name = item.name,
-                count = item.count,
-                metadata = item.metadata,
-                slot = item.slot,
-            }
-            if not bridge.inventory.removeItem(src, item.name, item.count, item.metadata, item.slot) then
-                log('warn', ('Player %s %s'):format(src, 'could not have their inventory confiscated'))
-                rollbackItems(src, removed)
-                return nil, 'confiscate_failed'
-            end
-            removed[#removed + 1] = heldItem
+    for i = 1, #pending do
+        local item = pending[i]
+        if not removeInventoryItem(src, item) then
+            log('warn', ('Player %s could not have inventory confiscated (%sx %s, slot %s)'):format(
+                src,
+                item.count,
+                item.name,
+                tostring(item.slot)
+            ))
+            rollbackItems(src, removed)
+            return nil, 'confiscate_failed'
         end
+        removed[#removed + 1] = item
     end
     return removed
 end
