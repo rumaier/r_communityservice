@@ -11,7 +11,7 @@ Cfg = {}
 
 Cfg.Language = 'en'     -- Languages: 'en': English, 'es': Spanish, 'fr': French, 'de': German, 'pt': Portuguese, 'zh': Chinese
 Cfg.VersionCheck = true -- Intermittent version checking (boolean)
-Cfg.Debug = false       -- Debug prints, not recommended for live servers (boolean)
+Cfg.Debug = true        -- Debug prints, not recommended for live servers (boolean)
 
 Cfg.Command = 'communityservice' -- Command to open the community service menu (string)
 Cfg.AllowedJobs = {              -- List of jobs that can use the menu
