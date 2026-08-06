@@ -289,8 +289,12 @@ local function tryInitialize()
     initialize()
 end
 
-AddEventHandler('r_bridge:playerLoaded', tryInitialize)
-AddEventHandler('r_communityservice:clientConfigLoaded', tryInitialize)
+AddEventHandler('r_bridge:playerLoaded', initialize)
+
+AddEventHandler('r_communityservice:clientConfigLoaded', function()
+    if not bridge.framework.isPlayerLoaded() then return end
+    initialize()
+end)
 
 AddEventHandler('onClientResourceStart', function(resource)
     if resource ~= GetCurrentResourceName() then return end
