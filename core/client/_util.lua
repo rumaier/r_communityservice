@@ -1,35 +1,37 @@
-Core = exports.r_bridge:returnCoreObject()
+Cfg = Cfg or {}
 
-local framework = Core.Framework.Current
-local onPlayerLoaded =  framework == 'es_extended' and 'esx:playerLoaded' or 'QBCore:Client:OnPlayerLoaded'
-
-local function initialize()
-    Initialize()
-end
-
-RegisterNetEvent(onPlayerLoaded, initialize)
-
-function NormalizeTargetData(data)
-    if type(data) ~= 'table' then
-        local entity = data
-        return {
-            entity = entity,
-            coords = GetEntityCoords(entity)
-        }
-    else
-        return data
+local function applyClientConfig(config)
+    for key, value in pairs(config) do
+        Cfg[key] = value
     end
+    TriggerEvent('r_communityservice:clientConfigLoaded')
 end
 
-RegisterNUICallback('setNuiFocus', function(focus, cb)
-    cb(SetNuiFocus(focus, focus))
-end)
+local function loadClientConfig()
+    local config
+    for attempt = 1, 10 do
+        local success, response = pcall(lib.callback.await, 'r_communityservice:getClientConfig', false)
+        if success and type(response) == 'table' then
+            config = response
+            break
+        end
+        Wait(attempt * 250)
+    end
+    if not config then
+        log('warn', 'Failed to load client config; retrying in the background')
+        CreateThread(function()
+            while true do
+                Wait(1000)
+                local success, response = pcall(lib.callback.await, 'r_communityservice:getClientConfig', false)
+                if success and type(response) == 'table' then
+                    applyClientConfig(response)
+                    return
+                end
+            end
+        end)
+        return
+    end
+    applyClientConfig(config)
+end
 
-RegisterNUICallback('fetchLocales', function(_, cb)
-    cb(Language[Cfg.Language])
-end)
-
-RegisterNUICallback('fetchConfig', function(_, cb)
-    Cfg.IconPath = Core.Inventory.IconPath
-    cb(Cfg)
-end)
+loadClientConfig()

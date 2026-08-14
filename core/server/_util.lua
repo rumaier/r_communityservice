@@ -1,27 +1,51 @@
-DatabaseBuilt = false
-Core = exports.r_bridge:returnCoreObject()
-
 local resource = GetCurrentResourceName()
 local version = GetResourceMetadata(resource, 'version', 0)
+local rateLimits = {}
+
+function IsRateLimited(src, action, duration)
+    local last = rateLimits[('%s:%s'):format(src, action)]
+    return last and GetGameTimer() - last < duration
+end
+
+function SetRateLimit(src, action)
+    rateLimits[('%s:%s'):format(src, action)] = GetGameTimer()
+end
+
+lib.callback.register('r_communityservice:getClientConfig', function()
+    return {
+        Language = Cfg.Language,
+        Debug = Cfg.Debug,
+        ZoneCoords = Cfg.ZoneCoords,
+        ZoneRadius = Cfg.ZoneRadius,
+        MaxTasks = Cfg.MaxTasks,
+        TaskTime = Cfg.TaskTime,
+    }
+end)
 
 local function checkVersion()
     if not Cfg.VersionCheck then return end
-    Core.VersionCheck(resource)
+    bridge.version.check(resource)
     SetTimeout(3600000, checkVersion)
 end
 
-local function startupPrints()
-    local debug = Cfg.Debug
+AddEventHandler('onResourceStart', function(name)
+    if name ~= resource then return end
     print('------------------------------')
-    print(locale('startup_info', resource, version))
-    if debug then
-        print(locale('debug_enabled'))
+    print(resource .. ' | ' .. version)
+    if bridge then
+        print('^2' .. locale('bridge_loaded') .. '^0')
+    else
+        print('^1' .. locale('update_bridge') .. '^0')
     end
+    if Cfg and Cfg.Debug then print('^1' .. locale('debug_enabled') .. '^0') end
     print('------------------------------')
-end
-
-AddEventHandler('onResourceStart', function(resourceName)
-    if resourceName ~= resource then return end
-    startupPrints()
     checkVersion()
+end)
+
+AddEventHandler('playerDropped', function()
+    local src = source
+    local prefix = '^' .. src .. ':'
+    for key in pairs(rateLimits) do
+        if key:match(prefix) then rateLimits[key] = nil end
+    end
 end)

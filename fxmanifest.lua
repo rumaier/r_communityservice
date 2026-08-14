@@ -4,31 +4,36 @@ game 'gta5'
 lua54 'yes'
 
 name 'r_communityservice'
-description 'A Simple Player Punishment Script'
+description 'A Simple Player Punishment Script for FiveM'
 author 'rumaier'
-version '3.1.0'
+version '3.2.0'
 
 shared_scripts {
     '@ox_lib/init.lua',
-    'core/shared/*.lua',
+    '@r_bridge/init.lua',
+    'core/shared/_util.lua',
     'locales/*.lua',
-    'config.lua',
 }
 
 server_scripts {
-    'core/server/*.lua',
+    'config.lua',
+    'core/server/_util.lua',
+    'core/server/logs.lua',
+    'core/server/main.lua',
 }
 
 client_scripts {
-    'core/client/*.lua',
+    'core/client/_util.lua',
+    'core/client/main.lua',
 }
 
 dependencies {
+    'ox_lib',
     'r_bridge'
 }
 
 escrow_ignore {
-    'core/server/logging.lua',
+    'core/server/logs.lua',
     'install/**/*.*',
     'locales/*.*',
     'config.lua'    
