@@ -112,6 +112,12 @@ local function getAccessLevel(src)
     return 0
 end
 
+local API_VERSION = 1
+
+local function canManage(src)
+    return getAccessLevel(src) >= 2
+end
+
 local function getStaffRoster()
     local roster = {}
     for src, runtime in pairs(activePlayers) do
@@ -356,6 +362,95 @@ local function hydratePlayer(src)
     return true
 end
 
+--- Assign community service tasks to an online player.
+---@param src number Acting officer source
+---@param target number Target player source
+---@param tasks number Task count
+---@return boolean success
+---@return string|nil err Locale error key
+local function staffAssignTasks(src, target, tasks)
+    if getAccessLevel(src) < 2 then
+        log('warn', ('Player %s %s'):format(src, 'attempted to assign tasks without access'))
+        return false
+    end
+
+    if not isInteger(target, 1, 65535) or not isInteger(tasks, 1, Cfg.MaxTasks) then
+        log('warn', ('Player %s %s'):format(src, 'submitted an invalid task assignment'))
+        return false
+    end
+    if src == target then return false, 'no_self_assign' end
+    if not GetPlayerName(target) then return false, 'player_not_found' end
+
+    local identifier = bridge.framework.getPlayerIdentifier(target)
+    if not identifier then
+        log('warn', ('Player %s %s'):format(src, ('could not resolve target %s identifier'):format(target)))
+        return false
+    end
+    if assignedTasks[identifier] then return false, 'player_already_assigned' end
+
+    local items, err = confiscateItems(target)
+    if not items then return false, err end
+
+    assignedTasks[identifier] = {
+        tasks = tasks,
+        items = items,
+    }
+    activePlayers[target] = {
+        name = GetPlayerName(target),
+        identifier = identifier,
+        current = nil,
+        startedAt = nil,
+    }
+
+    if not cacheTasksToJson() then
+        assignedTasks[identifier] = nil
+        activePlayers[target] = nil
+        if not rollbackItems(target, items) then
+            log('error', ('failed to roll back custody for %s after save failure'):format(identifier))
+        end
+        return false, 'persistence_failed'
+    end
+
+    SetRateLimit(target, 'loaded')
+    sendToZone(target, tasks)
+    logAssignment(src, target, tasks)
+    return true
+end
+
+--- Remove community service from an online player.
+---@param src number Acting officer source
+---@param target number Target player source
+---@return boolean success
+---@return string|nil err Locale error key
+local function staffRemoveTasks(src, target)
+    if getAccessLevel(src) < 2 then
+        log('warn', ('Player %s %s'):format(src, 'attempted to remove tasks without access'))
+        return false
+    end
+
+    if not isInteger(target, 1, 65535) then
+        log('warn', ('Player %s %s'):format(src, 'submitted an invalid task removal target'))
+        return false
+    end
+    if src == target then return false, 'no_self_remove' end
+
+    local runtime = activePlayers[target]
+    if not runtime or not assignedTasks[runtime.identifier] then
+        return false, 'player_not_found'
+    end
+
+    local released, err = releasePlayer(target, runtime.identifier)
+    if not released then
+        if err then
+            TriggerClientEvent('r_bridge:notify', target, locale('community_service'), locale(err), 'error')
+        end
+        return false, err
+    end
+
+    logRemoval(src, target)
+    return true
+end
+
 lib.callback.register('r_communityservice:getAccessLevel', function(src)
     return getAccessLevel(src)
 end)
@@ -363,7 +458,7 @@ end)
 lib.callback.register('r_communityservice:menuRequest', function(src)
     if IsRateLimited(src, 'menu', STAFF_RATE_LIMIT_MS) then return false end
     SetRateLimit(src, 'menu')
-    if getAccessLevel(src) < 2 then
+    if not canManage(src) then
         log('warn', ('Player %s %s'):format(src, 'attempted to open the staff menu without access'))
         return false
     end
@@ -459,93 +554,55 @@ end)
 lib.callback.register('r_communityservice:assignTasks', function(src, target, tasks)
     if IsRateLimited(src, 'staff', STAFF_RATE_LIMIT_MS) then return false end
     SetRateLimit(src, 'staff')
-    if getAccessLevel(src) < 2 then
-        log('warn', ('Player %s %s'):format(src, 'attempted to assign tasks without access'))
-        return false
-    end
-
-    if not isInteger(target, 1, 65535) or not isInteger(tasks, 1, Cfg.MaxTasks) then
-        log('warn', ('Player %s %s'):format(src, 'submitted an invalid task assignment'))
-        return false
-    end
-    if src == target then return false, 'no_self_assign' end
-    if not GetPlayerName(target) then return false, 'player_not_found' end
-
-    local identifier = bridge.framework.getPlayerIdentifier(target)
-    if not identifier then
-        log('warn', ('Player %s %s'):format(src, ('could not resolve target %s identifier'):format(target)))
-        return false
-    end
-    if assignedTasks[identifier] then return false, 'player_already_assigned' end
-
-    local items, err = confiscateItems(target)
-    if not items then return false, err end
-
-    assignedTasks[identifier] = {
-        tasks = tasks,
-        items = items,
-    }
-    activePlayers[target] = {
-        name = GetPlayerName(target),
-        identifier = identifier,
-        current = nil,
-        startedAt = nil,
-    }
-
-    if not cacheTasksToJson() then
-        assignedTasks[identifier] = nil
-        activePlayers[target] = nil
-        if not rollbackItems(target, items) then
-            log('error', ('failed to roll back custody for %s after save failure'):format(identifier))
-        end
-        return false, 'persistence_failed'
-    end
-
-    SetRateLimit(target, 'loaded')
-    sendToZone(target, tasks)
-    logAssignment(src, target, tasks)
-    return true
+    return staffAssignTasks(src, target, tasks)
 end)
 
 lib.callback.register('r_communityservice:removeTasks', function(src, target)
     if IsRateLimited(src, 'staff', STAFF_RATE_LIMIT_MS) then return false end
     SetRateLimit(src, 'staff')
-    if getAccessLevel(src) < 2 then
-        log('warn', ('Player %s %s'):format(src, 'attempted to remove tasks without access'))
-        return false
-    end
-
-    if not isInteger(target, 1, 65535) then
-        log('warn', ('Player %s %s'):format(src, 'submitted an invalid task removal target'))
-        return false
-    end
-    if src == target then return false, 'no_self_remove' end
-
-    local runtime = activePlayers[target]
-    if not runtime or not assignedTasks[runtime.identifier] then
-        return false, 'player_not_found'
-    end
-
-    local released, err = releasePlayer(target, runtime.identifier)
-    if not released then
-        if err then
-            TriggerClientEvent('r_bridge:notify', target, locale('community_service'), locale(err), 'error')
-        end
-        return false, err
-    end
-
-    logRemoval(src, target)
-    return true
+    return staffRemoveTasks(src, target)
 end)
 
 local function registerCommand()
     lib.addCommand(Cfg.Command, {
         help = locale('command_help'),
     }, function(src)
-        if getAccessLevel(src) < 2 then return end
+        if not canManage(src) then return end
         TriggerClientEvent('r_communityservice:openMenu', src)
     end)
 end
+
+exports('GetApiVersion', function()
+    return API_VERSION
+end)
+
+exports('CanManage', function(src)
+    src = tonumber(src)
+    if not src then return false end
+    return canManage(src)
+end)
+
+exports('GetMaxTasks', function()
+    return Cfg.MaxTasks
+end)
+
+exports('GetStaffRoster', function(src)
+    src = tonumber(src)
+    if not src or not canManage(src) then return nil, 'access_denied' end
+    return getStaffRoster()
+end)
+
+exports('AssignTasks', function(src, target, tasks)
+    src = tonumber(src)
+    if not src then return false end
+    return staffAssignTasks(src, target, tasks)
+end)
+
+exports('RemoveTasks', function(src, target)
+    src = tonumber(src)
+    if not src then return false end
+    return staffRemoveTasks(src, target)
+end)
 
 RegisterNetEvent('r_communityservice:playerLoaded', function()
     local src = source
