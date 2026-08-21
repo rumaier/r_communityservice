@@ -588,6 +588,7 @@ end)
 
 exports('GetStaffRoster', function(src)
     src = tonumber(src)
+    ---@diagnostic disable-next-line: redundant-return-value
     if not src or not canManage(src) then return nil, 'access_denied' end
     return getStaffRoster()
 end)
